@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>{[arcane.gl]}</title>
+<link href="http://fonts.googleapis.com/css?family=Raleway:200,300" rel="stylesheet" type="text/css" />
+<link href="css/stylesheet.css" rel="stylesheet" type="text/css" />
+
+<script type='text/javascript' src='./js/knockout-2.3.0.js'></script>
+
+
+</head>
+<body>
+<!-- Song Selection View
+	 @select; dropdown list of available songs
+	 @button; clear a song selection
+	 @span;   status text for chosen song, enables
+-->
+<select id="songChoice" data-bind="options: availableSongs,
+				   optionsCaption: 'choose your weapon...',
+				   optionsText: 'title',
+				   value: chosenSong"></select>
+
+<button data-bind="enable: chosenSong,
+				   click: resetSong">Clear</button>
+
+<span data-bind="with: chosenSong">
+    You have chosen <b data-bind="text: title"></b>
+	<span id="songPath" style="display: none;" data-bind="text: path"></span>
+</span>
+
+<script>
+/* initialize knockout view models */
+    // Song model
+    var Song = function(title, path) {
+        this.title = ko.observable(title);
+        this.path = ko.observable(path);
+    };
+
+    var SongSelectViewModel = function() {
+        var that = this;
+        that.availableSongs = ko.observableArray([
+            new Song("Gemini", 'data/gemini.mp3'),
+            new Song("Mandala", 'data/mandala.mp3'),
+            new Song("Surge", 'data/Amon-Tobin-Surge.mp3')
+        ]);
+        that.chosenSong = ko.observable(that.availableSongs.title, that.availableSongs.path);
+        that.resetSong = function() { that.chosenSong(null); $('#element').remove(); }
+    };
+
+    ko.applyBindings(new SongSelectViewModel());
+</script>
+
+<!-- End of Song Views -->
+<div id="info">Loading...<span id="loading_dots"></span></div>
+<script type="text/javascript" src="js/jquery-2.0.0.min.js"></script>
+<script type="text/javascript" src="js/three.min.js"></script>
+<script type="text/javascript" src="js/OrbitControls.js"></script>
+<script type="text/javascript" src="js/visualizer.js"></script>
+<script type="text/javascript" src="js/audio.js"></script>
+</body>
+</html>
