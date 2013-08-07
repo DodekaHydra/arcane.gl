@@ -70,25 +70,27 @@ for(var i = 0; i < 7; i++) {
     controls.pan(new THREE.Vector3( 0, 1, 0 ));
 }
 
-var last = 0, counter = 0, triLimit;
+// DELETE THIS
+var tempcount=0;
+// DELETE THAT
+
+
+var last = 0, counter = 0, triLimit, visual = 1;
 var render = function (cycles) {
     // enter loop if BitArray exists and play button has been pressed
     if(typeof array === 'object' && array.length > 0 && $('#play').length === 0) {
         if (cycles - last > 1000) {
             last = cycles;
             counter++;
-            console.log(last);
         }
-        var k = 0;
-        var styleList = ['grid', 'circle', 'triangle'];
-        var style = styleList[1];
-        var arcDeg = 360./cubes.length;
+        var k = k || 0;
+        var styleList = styleList || ['grid', 'circle', 'fan', 'triangle'];
+        var arcDeg = arcDeg || 360./cubes.length;
             for(var i = 0, iLen = cubes.length; i < iLen; i++) {
                 for(var j = 0, jLen = cubes.length; j < jLen; j++) {
                     var scale = (array[k] + boost) / 30;
                     k += (k < array.length ? 1 : 0);
-//                    debugger;
-                    switch (style) {
+                    switch (styleList[visual]) {
                         case 'grid':
 
                             cubes[i][j].scale.z = (scale < 1 ? 1 : scale);
@@ -105,30 +107,30 @@ var render = function (cycles) {
                             cubes[i][j].scale.z    = scale;
                             cubes[i][j].position.x = scale*Math.cos(degree) + 12.;
                             cubes[i][j].position.y = scale*Math.sin(degree) + 12. ;
-                            cubes[i][j].position.z = i*10.+damp;
 
-                            if (counter < 10) {
+                            if (counter < 6) {
                                 cubes[i][j].rotation.z = degree+Math.PI/2.;
-                            } else if (counter < 20) {
-                                if (cubes[i][j].rotation.z != 0){
-                                    cubes[i][j].rotation.z -= .01;
-                                    cubes[i][j].position.x += .1;
-                                    cubes[i][j].position.y += .1;
-                                }
+                                cubes[i][j].position.z = i*(counter+(cycles-last)/1000)+damp;
+                            //} else if (counter < 20) {
+                               // if (cubes[i][j].rotation.z != 0){
+                                //    cubes[i][j].rotation.z -= .01;
+                                    //cubes[i][j].position.x += .1;
+                                    //cubes[i][j].position.y += .1;
+                                //}
                                 //cubes[i][j].rotation.z = radian;
-                            } else if (counter < 35) {
-                                cubes[i][j].rotation.y += .01;
-                                cubes[i][j].rotation.x -= .01;
-                                cubes[i][j].rotation.z += .002;
-                                cubes[i][j].position.x += Math.log(cycles/10000)*Math.log(degree);
-                                cubes[i][j].position.y += .001;
-                            } else if (counter < 50) {
-                                cubes[i][j].rotation.y = Math.sin(cycles/5000);
-                                cubes[i][j].rotation.x = Math.cos(cycles/5000);
+//                            } else if (counter < 35) {
+//                                cubes[i][j].rotation.y += .01;
+//                                cubes[i][j].rotation.x -= .01;
+//                                cubes[i][j].rotation.z += .002;
+//                                cubes[i][j].position.x += Math.log(cycles/10000)*Math.log(degree);
+//                                cubes[i][j].position.y += .001;
+//                            } else if (counter < 50) {
+//                                cubes[i][j].rotation.y = Math.sin(cycles/5000);
+//                                cubes[i][j].rotation.x = Math.cos(cycles/5000);
 
                             } else {
                                 counter = 0;
-
+                                visual++;
                             }
 
 //                            if (false) {
@@ -142,6 +144,22 @@ var render = function (cycles) {
                             cubes[i][j].material.color.r = Math.abs(Math.sin(iLen/(i+1)+Math.log(scale*(i+1))));
                             cubes[i][j].material.color.g = Math.abs(Math.cos(iLen/(i+1)+Math.log(scale*(i+1))));
                             cubes[i][j].material.color.b = Math.abs(Math.tan(iLen/(i+1)+Math.log(scale+scale)));
+                            break;
+                        case 'fan':
+                            /*
+                             * arc length = theta*r (radians)    = alpha*pi*r/180 (degrees)
+                             *      alpha = degree of separation = j/jLen
+                             *          r = radius               = scale/2
+                             */
+//                            if (cubes[i][jLen-1].position.x !== 0 || cubes[i][jLen-1].position.y < cubes[i][j]){
+//                                cubes[i][j].rotation.z += .01;
+//                            }
+                            var arcLength = (( 360. / (( (j+1) % (jLen/2.0) ) /jLen)) *
+                                            Math.PI * ( scale / 2.0 )) / 180.0;
+                            if (arcLength && tempcount < 50) {
+                                console.log(arcLength, j);
+                                tempcount++;
+                            }
                             break;
                         case 'triangle':
                             triLimit = triLimit ? triLimit : sumLimit(iLen);
