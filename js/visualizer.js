@@ -60,7 +60,7 @@ directionalLight = new THREE.DirectionalLight(0xffffff, 0.7);
 directionalLight.position.set(-1, -1, 0);
 scene.add(directionalLight);
 
-camera.position.z = 50;
+camera.position.z = 90;
 
 controls = new THREE.OrbitControls(camera);
 controls.addEventListener('change', render);
@@ -72,11 +72,13 @@ for(var i = 0; i < 7; i++) {
 
 var last = 0, counter = 0, triLimit;
 var render = function (cycles) {
-    if (cycles - last > 1000) {
-        last = cycles;
-        counter++;
-    }
-    if(typeof array === 'object' && array.length > 0) {
+    // enter loop if BitArray exists and play button has been pressed
+    if(typeof array === 'object' && array.length > 0 && $('#play').length === 0) {
+        if (cycles - last > 1000) {
+            last = cycles;
+            counter++;
+            console.log(last);
+        }
         var k = 0;
         var styleList = ['grid', 'circle', 'triangle'];
         var style = styleList[1];
@@ -97,13 +99,13 @@ var render = function (cycles) {
                         case 'circle':
                             var degree = arcDeg*j;
                             //var radian = degree*Math.PI/180.;
-                            var damp = Math.log(Math.log(scale)) > 0.75 ? Math.log(Math.log(scale)) : 0.5;
-                            cubes[i][j].scale.y    = 1.5 * scale + .001;
-                            cubes[i][j].scale.x    = damp;
-                            cubes[i][j].scale.z    = damp;
+                            var damp = Math.log(scale) > 0.5 ? Math.log(scale) : 0.5;
+                            cubes[i][j].scale.y    = 20.0 * scale + .001;
+                            cubes[i][j].scale.x    = scale;
+                            cubes[i][j].scale.z    = scale;
                             cubes[i][j].position.x = scale*Math.cos(degree) + 12.;
                             cubes[i][j].position.y = scale*Math.sin(degree) + 12. ;
-                            cubes[i][j].position.z = i*4.+damp;
+                            cubes[i][j].position.z = i*10.+damp;
 
                             if (counter < 10) {
                                 cubes[i][j].rotation.z = degree+Math.PI/2.;

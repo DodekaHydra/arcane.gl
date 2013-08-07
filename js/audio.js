@@ -34,6 +34,11 @@
         var $play_link = $('#play_link'),
             $play = $('#play'),
             $info = $('#info');
+        /* @params
+         * audioData; ArrayBuffer containing audio file data
+         * successCallback; invoked on successful decoding
+         * errorCallback
+         */
         context.decodeAudioData(
             request.response,
             function(buffer) {
@@ -49,6 +54,13 @@
                 analyser.smoothingTimeConstant = 0.6;
                 analyser.fftSize = 512;
 
+                /*
+                 * WebAudio modular routing
+                 * @source creates AudioBuffer, zero-initialized
+                 * @buffer
+                 *
+                 *
+                 */
                 source = context.createBufferSource();
                 source.buffer = buffer;
                 source.loop = true;
@@ -77,7 +89,9 @@
                 clearInterval(interval);
 
                 // popup
-                $('body').append($('<div onclick="play();" id="play" style="width: ' + $(window).width() + 'px; height: ' + $(window).height() + 'px;"><div id="play_link"></div></div>'));
+                $('body').append($('<div onclick="play();" id="play" style="width: ' +
+                                 $(window).width() + 'px; height: ' + $(window).height() +
+                                 'px;"><div id="play_link"></div></div>'));
                 var $play_link = $('#play_link'),
                     $play = $('#play');
                 $play_link.css('top', ($(window).height() / 2 - $play_link.height() / 2) + 'px');
@@ -96,22 +110,12 @@
 
     request.send();
 
-    function displayTime(time) {
-        if(time < 60) {
-            return '0:' + (time < 10 ? '0' + time : time);
-        }
-        else {
-            var minutes = Math.floor(time / 60);
-            time -= minutes * 60;
-            return minutes + ':' + (time < 10 ? '0' + time : time);
-        }
-    }
-
     function play() {
         $('#play').fadeOut('normal', function() {
             $(this).remove();
         });
-        source.noteOn(0);
+        // initialize sources now
+        source.start(0);
     }
 
     $(window).resize(function() {
