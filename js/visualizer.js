@@ -85,7 +85,7 @@ var render = function (cycles) {
                 for(var j = 0, jLen = cubes.length; j < jLen; j++) {
                     var scale = (array[k] + boost) / 30;
                     k += (k < array.length ? 1 : 0);
-                    debugger;
+//                    debugger;
                     switch (style) {
                         case 'grid':
 
@@ -117,7 +117,8 @@ var render = function (cycles) {
                             } else if (counter < 35) {
                                 cubes[i][j].rotation.y += .01;
                                 cubes[i][j].rotation.x -= .01;
-                                cubes[i][j].position.x += Math.log(cycles/10000);
+                                cubes[i][j].rotation.z += .002;
+                                cubes[i][j].position.x += Math.log(cycles/10000)*Math.log(degree);
                                 cubes[i][j].position.y += .001;
                             } else if (counter < 50) {
                                 cubes[i][j].rotation.y = Math.sin(cycles/5000);

@@ -58,6 +58,7 @@
                 source.connect(context.destination);
 
                 sourceJs.onaudioprocess = function(e) {
+                    debugger;
                     array = new Uint8Array(analyser.frequencyBinCount);
                     analyser.getByteFrequencyData(array);
                     boost = 0;
