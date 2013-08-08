@@ -9,10 +9,10 @@ arcane.gl
 + From Terminal/CMD, Run:
 
         Python 2.x
-        python -m SimpleHTTPServer 8081
-    or
+            python -m SimpleHTTPServer 8081
+        or
         Python 3.x
-        python -m http.server 8081
+            python -m http.server 8081
 
 + From browser of choice, enter the url
 
