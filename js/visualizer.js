@@ -90,7 +90,7 @@ var render = function (cycles) {
         // 'grid' works but is boring
         var styleList = ['grid', 'circle', 'fan', 'triangle'];
         var arcDeg = 360./cubes.length;
-
+        var lotusSize = [];
         for(var i = 0, iLen = cubes.length; i < iLen; i++) {
             for(var j = 0, jLen = cubes.length; j < jLen; j++) {
                 var scale = (array[k] + boost) / 30;
