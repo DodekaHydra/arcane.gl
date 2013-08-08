@@ -10,9 +10,7 @@ arcane.gl
 
         Python 2.x
         python -m SimpleHTTPServer 8081
-
-or
-
+    or
         Python 3.x
         python -m http.server 8081
 
