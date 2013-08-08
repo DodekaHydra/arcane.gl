@@ -91,7 +91,7 @@ var render = function (cycles) {
         // 'grid' works but is boring
         var styleList = ['grid', 'circle', 'fan', 'triangle'];
         var iLen = cubes.length, jLen = cubes[0].length;
-        var arcDeg = 360./iLen;
+        var arcDeg = 360./iLen, maxCycle = 50;
         /*
          * @lastScale = previous fully completed data sequence of frequency data
          * @tempScale = current scale sequence
@@ -103,7 +103,7 @@ var render = function (cycles) {
             for(var j = 0, jLen = cubes.length; j < jLen; j++) {
                 tempScale[i][j] = (array[k] + boost) / 30;
                 k += (k < array.length ? 1 : 0);
-                var timeScale = counter+(cycles-last)/1000;
+                var timeScale = counter+(cycles-last)/1000; // ms since play()
                 switch (styleList[visual]) {
                     case 'grid':
 
@@ -115,12 +115,18 @@ var render = function (cycles) {
                     case 'circle':
                         var degree = arcDeg*j;
                         //var radian = degree*Math.PI/180.;
-                        var damp = Math.log(tempScale[i][j]) > 0.5 ? Math.log(tempScale[i][j]) : 0.5;
+                        var damp = Math.log(tempScale[i][j]*tempScale[i][j]) > 0.5 ? Math.log(tempScale[i][j]*tempScale[i][j]) : 0.5;
                         cubes[i][j].scale.y    = 2.0*tempScale[i][j] + .001;
                         cubes[i][j].scale.x    = damp;
                         cubes[i][j].scale.z    = damp;
-                        cubes[i][j].position.x = (timeScale/10)*tempScale[i][j]*Math.cos(degree) + 40.;
-                        cubes[i][j].position.y = (timeScale/10)*tempScale[i][j]*Math.sin(degree) + 40.;
+                        /*
+                         * Range of timeScale+10 = 10-60
+                         * maxCycle/5.           = 10
+                         * pos.x and pos.y scale over time by an increasing factor from 1-5;
+                         */
+                        var positionScale = (timeScale+10)/(maxCycle/5.);
+                        cubes[i][j].position.x = positionScale*tempScale[i][j]*Math.cos(degree);
+                        cubes[i][j].position.y = positionScale*tempScale[i][j]*Math.sin(degree);
 
                         if (counter < 10) {
                             cubes[i][j].rotation.z = degree+Math.PI/2.;
@@ -133,9 +139,9 @@ var render = function (cycles) {
                             cubes[i][j].rotation.y -= .01;
                             cubes[i][j].rotation.x -= .01;
                             cubes[i][j].rotation.z += .002;
-                        } else if (counter < 50) {
-                            cubes[i][j].rotation.y += Math.sin(cycles/5000)/(50-counter);
-                            cubes[i][j].rotation.x -= Math.cos(cycles/5000)/(50-counter);
+                        } else if (counter < maxCycle) {
+                            cubes[i][j].rotation.y += Math.sin(cycles/5000)/(maxCycle-counter);
+                            cubes[i][j].rotation.x -= Math.cos(cycles/5000)/(maxCycle-counter);
                             if (counter > 40)
                                 cubes[i][j].position.z = i*(50-timeScale)+damp;
                         } else {
