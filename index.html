@@ -28,9 +28,10 @@
         <span data-bind="with: chosenSong">
             You have chosen <b data-bind="text: title"></b>
             <span id="songPath" style="display: none;" data-bind="text: path"></span>
-        </span>
 
-        <input id="volume" type="range" min="0.0" max="1" step="0.05" value="0.5"/>
+        </span>
+        <input id="volume" type="range" min="0.0" max="1.0" step="0.05" value="0.5"/>
+        <input id="intensity" type="range" min="0.1" max="10.0" step="0.1" value="0.1"/>
     </header>
     <script>
     /* initialize knockout view models */
@@ -50,6 +51,10 @@
             that.chosenSong = ko.observable(that.availableSongs.title, that.availableSongs.path);
             that.resetSong = function() { that.chosenSong(null); $('#element').remove(); }
         };
+//        var UXViewModel = function() {
+//            var that = this;
+//            that.volume = ko.observable();
+//        }
 
         ko.applyBindings(new SongSelectViewModel());
 
