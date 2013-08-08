@@ -1,3 +1,4 @@
+// Don't bother with this file; the changes I made are trivial; this is THREE.js
 /**
  * @author qiao / https://github.com/qiao
  * @author mrdoob / http://mrdoob.com

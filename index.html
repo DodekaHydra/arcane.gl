@@ -7,40 +7,68 @@
     <link href="css/stylesheet.css" rel="stylesheet" type="text/css" />
 
     <script type='text/javascript' src='./js/knockout-2.3.0.js'></script>
+    <script type="text/javascript" src="js/jquery-2.0.0.min.js"></script>
+
 
 </head>
 <body>
     <header>
         <!-- Song Selection View
-             @select; dropdown list of available songs
-             @button; clear a song selection
-             @span;   status text for chosen song, enables
+             @select - dropdown list of available songs
+             bindings: array of available songs and selector for chosen song
+             @button - clear a song selection
+             @span   - status text for chosen song, enables
+             bindings: on song selection, displays the song title and assigns direct path
+                       path is selected in UI.js and passed into audio.js
         -->
+        <span id="songSelect">
+            <select id="songChoice" data-bind="options: availableSongs,
+                           optionsCaption: 'choose your weapon...',
+                           optionsText: 'title',
+                           value: chosenSong"></select>
 
-        <select id="songChoice" data-bind="options: availableSongs,
-                       optionsCaption: 'choose your weapon...',
-                       optionsText: 'title',
-                       value: chosenSong"></select>
+            <button data-bind="enable: chosenSong,
+                           click: resetSong">Clear</button>
 
-        <button data-bind="enable: chosenSong,
-                       click: resetSong">Clear</button>
+            <span data-bind="with: chosenSong">
+                You have chosen <b data-bind="text: title"></b>
+                <span id="songPath" style="display: none;" data-bind="text: path"></span>
 
-        <span data-bind="with: chosenSong">
-            You have chosen <b data-bind="text: title"></b>
-            <span id="songPath" style="display: none;" data-bind="text: path"></span>
-
+            </span>
         </span>
-        <input id="volume" type="range" min="0.0" max="1.0" step="0.05" value="0.5"/>
-        <input id="intensity" type="range" min="0.1" max="10.0" step="0.1" value="0.1"/>
+
+        <input id="volume" type="range" min="0.0" max="1.0" step=".05" value=".5"/>
+<!--- TODO:
+      I'm in the process of adding a second set of data-bindings which will handle all UX
+      This will show off some sweet knockout functionality, as well as provide a more
+      interesting and meaningful project. This code is not yet functional, so is
+      probably best left ignored.  -->
+    <!--<header>-->
+        <!--<span id="uX">-->
+            <!--Volume: <input data-bind="value: volume, valueUpdate: 'afterkeydown'" />-->
+            <!--<div style="margin: 10px" data-bind="slider: volume, sliderOptions: {min: 0.0, max: 1.0, range: 'min', step: 0.05}"></div>-->
+
+            <!--Intensity: <input data-bind="value: intensity, valueUpdate: 'afterkeydown'" />-->
+            <!--<div style="margin: 10px" data-bind="slider: intensity, sliderOptions: {min: 0.1, max: 10.0, range: 'min', step: 0.1}"></div>-->
+            <!--&lt;!&ndash;<input id="setVolume" data-bind="value: volume" type="range" min="0.0" max="1.0" step="0.05"/>&ndash;&gt;-->
+            <!--&lt;!&ndash;<input id="setIntensity" data-bind="value: intensity" type="range" min="0.1" max="10.0" step="0.1"/>&ndash;&gt;-->
+         <!--</span>-->
     </header>
     <script>
     /* initialize knockout view models */
-        // Song model
+        /*
+         * @title: name of song
+         * @path: direct local path to a file;
+         *        [tested for mp3]
+         * */
         var Song = function(title, path) {
             this.title = ko.observable(title);
             this.path = ko.observable(path);
         };
-
+        /*
+         *
+         *
+         * */
         var SongSelectViewModel = function() {
             var that = this;
             that.availableSongs = ko.observableArray([
@@ -48,26 +76,54 @@
                 new Song("Mandala", './data/mandala.mp3'),
                 new Song("Surge", './data/Amon-Tobin_Surge.mp3')
             ]);
-            that.chosenSong = ko.observable(that.availableSongs.title, that.availableSongs.path);
+            that.chosenSong = ko.observable();
             that.resetSong = function() { that.chosenSong(null); $('#element').remove(); }
         };
+        ko.applyBindings(new SongSelectViewModel(), document.getElementById('songSelect')[0] );
+
+
+    /* TODO:
+     * This is the associated ViewModel for the View shown above. This is
+     * unfinished and will provide structure for the bindings alongside
+     * custom knockout slider logic.
+     */
 //        var UXViewModel = function() {
 //            var that = this;
-//            that.volume = ko.observable();
-//        }
-
-        ko.applyBindings(new SongSelectViewModel());
-
+//            that.volume = ko.observable(0.5);
+//            that.intensity = ko.observable(1.0);
+//        };
+//        ko.bindingHandlers.slider = {
+//            init: function (element, valueAccessor, allBindingsAccessor) {
+//                var options = allBindingsAccessor().sliderOptions || {};
+//                $(element).slider(options);
+//                ko.utils.registerEventHandler(element, "slidechange", function (event, ui) {
+//                    var observable = valueAccessor();
+//                    observable(ui.value);
+//                });
+//                ko.utils.domNodeDisposal.addDisposeCallback(element, function () {
+//                    $(element).slider("destroy");
+//                });
+//                ko.utils.registerEventHandler(element, "slide", function (event, ui) {
+//                    var observable = valueAccessor();
+//                    observable(ui.value);
+//                });
+//            },
+//            update: function (element, valueAccessor) {
+//                var value = ko.utils.unwrapObservable(valueAccessor());
+//                if (isNaN(value)) value = 0;
+//                $(element).slider("value", value);
+//            }
+//        };
+//        ko.applyBindings(new UXViewModel(), document.getElementById('uX'));
+//        debugger;
 
     </script>
 
-    <!-- End of Song Views -->
-    <div id="info">Loading...<span id="loading_dots"></span></div>
-    <script type="text/javascript" src="js/jquery-2.0.0.min.js"></script>
     <script type="text/javascript" src="js/three.min.js"></script>
     <script type="text/javascript" src="js/OrbitControls.js"></script>
     <script type="text/javascript" src="js/visualizer.js"></script>
     <script type="text/javascript" src="js/audio.js"></script>
     <script type="text/javascript" src="js/UI.js"></script>
+    <script type="text/javascript" src="js/visFunctions.js"></script>
     </body>
 </html>

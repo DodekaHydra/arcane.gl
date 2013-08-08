@@ -1,6 +1,10 @@
+//Much of this code is from an open git repo
+//I applied several optimizations, as well as added gainNode [volume control]
+//and enabled knockout functionality
+//Most of my interaction with this file has been largely trimming the fat
 
 var source, gainNode; // terrible globals! UI.js needs these; fix later
-var array = [], boost = 0; // more terrible globals!
+var array = [], boost = 0; // more terrible globals! visualizer needs these
 /*
  * @param, optional user-selected song choice via knockout dropdown
  */
@@ -29,7 +33,8 @@ var Audio = function(passedUrl){
         var $play_link = $('#play_link'),
             $play = $('#play'),
             $info = $('#info');
-        /* @params
+
+        /* @params decodeAudioData
          * audioData; ArrayBuffer containing audio file data
          * successCallback; invoked on successful decoding
          * errorCallback
