@@ -1,18 +1,13 @@
-//var Audio = function(passedUrl){
-    var context, source, sourceJs, analyser, buffer,
-        array = [],
-        boost = 0,
-        url = './data/Amon-Tobin_Surge.mp3';
 
-    var interval = window.setInterval(function() {
-        var $dots = $('loading_dots');
-        if($dots.text().length < 3) {
-            $dots.text($dots.text() + '.');
-        }
-        else {
-            $dots.text('');
-        }
-    }, 500);
+var source, gainNode; // terrible globals! UI.js needs these; fix later
+var array = [], boost = 0; // more terrible globals!
+/*
+ * @param, optional user-selected song choice via knockout dropdown
+ */
+
+var Audio = function(passedUrl){
+    var context, sourceJs, analyser, buffer,
+        url = passedUrl || './data/Amon-Tobin_Surge.mp3';
 
     try {
         if(typeof webkitAudioContext === 'function') {
@@ -54,14 +49,21 @@
                 analyser.smoothingTimeConstant = 0.6;
                 analyser.fftSize = 512;
 
+                source = context.createBufferSource();
+
+                /*
+                 *  WebAudio volume control
+                 */
+                gainNode = context.createGainNode();
+                source.connect(gainNode);
+                gainNode.connect(context.destination);
+
                 /*
                  * WebAudio modular routing
                  * @source creates AudioBuffer, zero-initialized
-                 * @buffer
-                 *
+                 * @buffer is media input
                  *
                  */
-                source = context.createBufferSource();
                 source.buffer = buffer;
                 source.loop = true;
 
@@ -78,14 +80,6 @@
                     }
                     boost = boost / array.length;
                 };
-
-                /*$('#info')
-                    .fadeOut('normal', function() {
-                        $(this).html('<div id="artist"><a class="name" href="http://www.looperman.com/users/profile/345547" target="_blank">Cufool</a><br /><a class="song" href="http://www.looperman.com/tracks/detail/70506" target="_blank">You in my world instrumental</a><br /></div><div><img src="data/cufool.jpg" width="58" height="58" /></div>');
-                    })
-                    .fadeIn();
-                */
-                clearInterval(interval);
 
                 // popup
                 $('body').append($('<div onclick="play();" id="play" style="width: ' +
@@ -104,18 +98,11 @@
     };
 
     request.onerror = function(e) {
+        debugger;
         $('#info').text(''+e+'buffer: XHR error');
     };
 
     request.send();
-
-    function play() {
-        $('#play').fadeOut('normal', function() {
-            $(this).remove();
-        });
-        // initialize sources now
-        source.start(0);
-    }
 
     $(window).resize(function() {
         var $play_link = $('#play_link'),
@@ -130,4 +117,4 @@
             }
         }
     });
-//};
+};

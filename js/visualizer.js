@@ -62,7 +62,7 @@ scene.add(directionalLight);
 
 camera.position.z = 90;
 
-controls = new THREE.OrbitControls(camera);
+controls = new THREE.OrbitControls(camera, $('canvas'));
 controls.addEventListener('change', render);
 
 for(var i = 0; i < 7; i++) {
@@ -79,6 +79,7 @@ var last = 0, counter = 0, triLimit, visual = 1;
 var render = function (cycles) {
     // enter loop if BitArray exists and play button has been pressed
     if(typeof array === 'object' && array.length > 0 && $('#play').length === 0) {
+        // increment counter each second
         if (cycles - last > 1000) {
             last = cycles;
             counter++;
@@ -86,9 +87,10 @@ var render = function (cycles) {
         var k = k || 0;
         var styleList = styleList || ['grid', 'circle', 'fan', 'triangle'];
         var arcDeg = arcDeg || 360./cubes.length;
+
             for(var i = 0, iLen = cubes.length; i < iLen; i++) {
                 for(var j = 0, jLen = cubes.length; j < jLen; j++) {
-                    var scale = (array[k] + boost) / 30;
+                    var scale = 5.0* (array[k] + boost) / 30;
                     k += (k < array.length ? 1 : 0);
                     switch (styleList[visual]) {
                         case 'grid':
@@ -102,45 +104,36 @@ var render = function (cycles) {
                             var degree = arcDeg*j;
                             //var radian = degree*Math.PI/180.;
                             var damp = Math.log(scale) > 0.5 ? Math.log(scale) : 0.5;
-                            cubes[i][j].scale.y    = 20.0 * scale + .001;
-                            cubes[i][j].scale.x    = scale;
-                            cubes[i][j].scale.z    = scale;
-                            cubes[i][j].position.x = scale*Math.cos(degree) + 12.;
-                            cubes[i][j].position.y = scale*Math.sin(degree) + 12. ;
+                            cubes[i][j].scale.y    = 4.0 * scale + .001;
+                            cubes[i][j].scale.x    = damp;
+                            cubes[i][j].scale.z    = damp;
+                            cubes[i][j].position.x = 2.0*scale*Math.cos(degree) + 40.;
+                            cubes[i][j].position.y = 2.0*scale*Math.sin(degree) + 40.;
 
                             if (counter < 6) {
                                 cubes[i][j].rotation.z = degree+Math.PI/2.;
                                 cubes[i][j].position.z = i*(counter+(cycles-last)/1000)+damp;
-                            //} else if (counter < 20) {
-                               // if (cubes[i][j].rotation.z != 0){
-                                //    cubes[i][j].rotation.z -= .01;
-                                    //cubes[i][j].position.x += .1;
-                                    //cubes[i][j].position.y += .1;
-                                //}
-                                //cubes[i][j].rotation.z = radian;
-//                            } else if (counter < 35) {
-//                                cubes[i][j].rotation.y += .01;
-//                                cubes[i][j].rotation.x -= .01;
-//                                cubes[i][j].rotation.z += .002;
-//                                cubes[i][j].position.x += Math.log(cycles/10000)*Math.log(degree);
-//                                cubes[i][j].position.y += .001;
-//                            } else if (counter < 50) {
-//                                cubes[i][j].rotation.y = Math.sin(cycles/5000);
-//                                cubes[i][j].rotation.x = Math.cos(cycles/5000);
+                            } else if (counter < 20) {
+                               if (cubes[i][j].rotation.z != 0){
+                                    cubes[i][j].rotation.z -= .01;
+                                    cubes[i][j].position.x += .1;
+                                    cubes[i][j].position.y += .1;
+                                }
+                               // cubes[i][j].rotation.z = radian;
+                            } else if (counter < 35) {
+                                cubes[i][j].rotation.y += .01;
+                                cubes[i][j].rotation.x -= .01;
+                                cubes[i][j].rotation.z += .002;
+                                cubes[i][j].position.x += Math.log(cycles/10000)*Math.log(degree);
+                                cubes[i][j].position.y += .001;
+                            } else if (counter < 50) {
+                                cubes[i][j].rotation.y = Math.sin(cycles/5000);
+                                cubes[i][j].rotation.x = Math.cos(cycles/5000);
 
                             } else {
                                 counter = 0;
-                                visual++;
+//                                visual++;
                             }
-
-//                            if (false) {
-//                                fanDegree = (cubes.length * (j+1))/360.;
-//                                cubes[i][j].scale.y 	= 1.5 * scale + .001;
-//                                cubes[i][j].rotation.z = fanDegree+Math.PI/2;
-//                                cubes[i][j].position.x = Math.cos(fanDegree);
-//                                cubes[i][j].position.y = Math.sin(fanDegree);
-//                                cubes[i][j].position.z = Math.sin(i/(cubes.length/2))*10.+2.;
-//                            }
                             cubes[i][j].material.color.r = Math.abs(Math.sin(iLen/(i+1)+Math.log(scale*(i+1))));
                             cubes[i][j].material.color.g = Math.abs(Math.cos(iLen/(i+1)+Math.log(scale*(i+1))));
                             cubes[i][j].material.color.b = Math.abs(Math.tan(iLen/(i+1)+Math.log(scale+scale)));
@@ -156,7 +149,7 @@ var render = function (cycles) {
 //                            }
                             var arcLength = (( 360. / (( (j+1) % (jLen/2.0) ) /jLen)) *
                                             Math.PI * ( scale / 2.0 )) / 180.0;
-                            if (arcLength && tempcount < 50) {
+                            if (arcLength && j === 0 && tempcount < 50) {
                                 console.log(arcLength, j);
                                 tempcount++;
                             }
@@ -179,10 +172,6 @@ var render = function (cycles) {
 };
 
 
-// on song selection, load the visualizer
-//$('#songChoice').on('change', function(){
-    //var test = Audio($('#songPath').text());
-    //console.log(test);
-    render(0);
-//});
+
+
 renderer.setSize($(window).width(), $(window).height());

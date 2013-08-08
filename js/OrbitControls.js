@@ -9,6 +9,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 	this.object = object;
 	this.domElement = ( domElement !== undefined ) ? domElement : document;
+    this.domElement = this.domElement[0];
 
 	// API
 
@@ -353,7 +354,6 @@ THREE.OrbitControls = function ( object, domElement ) {
 		}
 
 	}
-
 	this.domElement.addEventListener( 'contextmenu', function ( event ) { event.preventDefault(); }, false );
 	this.domElement.addEventListener( 'mousedown', onMouseDown, false );
 	this.domElement.addEventListener( 'mousewheel', onMouseWheel, false );
