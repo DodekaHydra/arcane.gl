@@ -39,29 +39,30 @@ var uniforms = {
 var attributes = {
     size: { type: 'f', value: [] }
 };
-//
-//for (var q=0; q < attributes.size.value.length; q++) {
-//    attributes.size.value[q] = 5 + Math.floor(Math.random() * 10);
-//}
 
-var directionalLight = new THREE.DirectionalLight(0xffffff, 0.7);
-directionalLight.position.set(0, 1, 1);
-scene.add(directionalLight);
+for (var q=0; q < attributes.size.value.length; q++) {
+    attributes.size.value[q] = 5 + Math.floor(Math.random() * 10);
+}
 
-directionalLight = new THREE.DirectionalLight(0xffffff, 0.7);
-directionalLight.position.set(1, 1, 0);
-scene.add(directionalLight);
+/* Lighting initialization */
+var directionalLight,
+    lightPosition = [ [0, 1, 1],
+                      [1, 1, 0],
+                      [0,-1,-1],
+                      [-1,-1,0] ];
 
+for (var lights = 0; lights < lightPosition.length; lights++){
+    debugger;
+    directionalLight = new THREE.DirectionalLight(0xffffff, 0.7);
+    directionalLight.position.set(lightPosition[lights][0], lightPosition[lights][1], lightPosition[lights][2]);
+    scene.add(directionalLight);
+}
 
-directionalLight = new THREE.DirectionalLight(0xffffff, 0.7);
-directionalLight.position.set(0, -1, -1);
-scene.add(directionalLight);
-
-directionalLight = new THREE.DirectionalLight(0xffffff, 0.7);
-directionalLight.position.set(-1, -1, 0);
-scene.add(directionalLight);
-
-camera.position.z = 150;
+// equations to center camera init point around cube locations
+var len = cubes.length - 1.;
+camera.position.x = (cubes[len][0].position.x + cubes[0][0].position.x) / 2.0;
+camera.position.y = (cubes[0][len].position.y + cubes[0][0].position.y) / 2.0;
+camera.position.z = cubes[0][0].position.z + 80.;
 
 controls = new THREE.OrbitControls(camera, $('canvas'));
 controls.addEventListener('change', render);
@@ -89,49 +90,54 @@ var render = function (cycles) {
         // 'circle' is the only meaningful visual at the moment
         // 'grid' works but is boring
         var styleList = ['grid', 'circle', 'fan', 'triangle'];
-        var arcDeg = 360./cubes.length;
-        var lotusSize = [];
+        var iLen = cubes.length, jLen = cubes[0].length;
+        var arcDeg = 360./iLen;
+        /*
+         * @lastScale = previous fully completed data sequence of frequency data
+         * @tempScale = current scale sequence
+         */
+        var lotusSize = [], lastScale = [], tempScale = [];
+
         for(var i = 0, iLen = cubes.length; i < iLen; i++) {
+            tempScale[i] = [];
             for(var j = 0, jLen = cubes.length; j < jLen; j++) {
-                var scale = (array[k] + boost) / 30;
+                tempScale[i][j] = (array[k] + boost) / 30;
                 k += (k < array.length ? 1 : 0);
+                var timeScale = counter+(cycles-last)/1000;
                 switch (styleList[visual]) {
                     case 'grid':
 
-                        cubes[i][j].scale.z = (scale < 1 ? 1 : scale);
-                        cubes[i][j].material.color.r = Math.abs(Math.sin(iLen/(i+1)+Math.log(scale*(i+1))));
-                        cubes[i][j].material.color.g = Math.abs(Math.cos(iLen/(i+1)+Math.log(scale*(i+1))));
-                        cubes[i][j].material.color.b = Math.abs(Math.tan(iLen/(i+1)+Math.log(scale+scale)));
+                        cubes[i][j].scale.z = (tempScale[i][j] < 1 ? 1 : tempScale[i][j]);
+                        cubes[i][j].material.color.r = Math.abs(Math.sin(iLen/(i+1)+Math.log(tempScale[i][j]*(i+1))));
+                        cubes[i][j].material.color.g = Math.abs(Math.cos(iLen/(i+1)+Math.log(tempScale[i][j]*(i+1))));
+                        cubes[i][j].material.color.b = Math.abs(Math.tan(iLen/(i+1)+Math.log(tempScale[i][j]+tempScale[i][j])));
                         break;
                     case 'circle':
                         var degree = arcDeg*j;
                         //var radian = degree*Math.PI/180.;
-                        var damp = Math.log(scale) > 0.5 ? Math.log(scale) : 0.5;
-                        cubes[i][j].scale.y    = 4.0 * scale + .001;
+                        var damp = Math.log(tempScale[i][j]) > 0.5 ? Math.log(tempScale[i][j]) : 0.5;
+                        cubes[i][j].scale.y    = 2.0*tempScale[i][j] + .001;
                         cubes[i][j].scale.x    = damp;
                         cubes[i][j].scale.z    = damp;
-                        cubes[i][j].position.x = 2.0*scale*Math.cos(degree) + 30.;
-                        cubes[i][j].position.y = 2.0*scale*Math.sin(degree) + 30.;
+                        cubes[i][j].position.x = (timeScale/10)*tempScale[i][j]*Math.cos(degree) + 40.;
+                        cubes[i][j].position.y = (timeScale/10)*tempScale[i][j]*Math.sin(degree) + 40.;
 
-                        if (counter < 6) {
+                        if (counter < 10) {
                             cubes[i][j].rotation.z = degree+Math.PI/2.;
-                            cubes[i][j].position.z = i*(counter+(cycles-last)/1000)+damp;
+                            cubes[i][j].position.z = i*timeScale+damp;
                         } else if (counter < 20) {
                             if (cubes[i][j].rotation.z != 0){
                                 cubes[i][j].rotation.z -= .01;
-                                //cubes[i][j].position.x += .1;
-                                //cubes[i][j].position.y += .1;
                             }
                         } else if (counter < 35) {
                             cubes[i][j].rotation.y -= .01;
                             cubes[i][j].rotation.x -= .01;
                             cubes[i][j].rotation.z += .002;
-                            //cubes[i][j].position.x += Math.log(cycles/10000)*Math.log(degree);
-                            //cubes[i][j].position.y += .001;
                         } else if (counter < 50) {
                             cubes[i][j].rotation.y += Math.sin(cycles/5000)/(50-counter);
                             cubes[i][j].rotation.x -= Math.cos(cycles/5000)/(50-counter);
-
+                            if (counter > 40)
+                                cubes[i][j].position.z = i*(50-timeScale)+damp;
                         } else {
                             // counter resets after 50 seconds
                             counter = 0;
@@ -139,17 +145,17 @@ var render = function (cycles) {
 //                                visual++;
                         }
                         // overly complicated color assignment
-                        cubes[i][j].material.color.r = Math.abs(Math.sin(iLen/(i+1)+Math.log(scale*(i+1))));
-                        cubes[i][j].material.color.g = Math.abs(Math.cos(iLen/(i+1)+Math.log(scale*(i+1))));
-                        cubes[i][j].material.color.b = Math.abs(Math.tan(iLen/(i+1)+Math.log(scale+scale)));
+                        cubes[i][j].material.color.r = Math.abs(Math.sin(iLen/(i+1)+Math.log(tempScale[i][j]*(i+1))));
+                        cubes[i][j].material.color.g = Math.abs(Math.cos(iLen/(i+1)+Math.log(tempScale[i][j]*(i+1))));
+                        cubes[i][j].material.color.b = Math.abs(Math.tan(iLen/(i+1)+Math.log(tempScale[i][j]+tempScale[i][j])));
                         break;
                     case 'fan':
                     /*
                      * WIP
-                     * calls arcLength() in visFunctions.js
+                     * calls arcLength() in mathUtils.js
                      * the goal here is to unravel each lotus like it were a fan
                      */
-                        var arc = arcLength(j, jLen, scale);
+                        var arc = arcLength(j, jLen, tempScale[i][j]);
                         if (arc && j === 0 && tempcount < 50) {
                             console.log(arc, j);
                             tempcount++;
@@ -160,13 +166,14 @@ var render = function (cycles) {
                      */
                     case 'triangle':
                         var triLimit = triLimit || sumLimit(iLen);
-                        cubes[i][j].scale.z = (scale < 1 ? 1 : scale);
+                        cubes[i][j].scale.z = (tempScale[i][j] < 1 ? 1 : tempScale[i][j]);
                         cubes[i][j].position.y = (iLen*(i+1)+j)/2.;
                         cubes[i][j].position.x = (i+1)*j;
                         break;
                 }
             }
         }
+        lastScale = tempScale;
     }
     // update @cycles with current execution time
     requestAnimationFrame(render);
