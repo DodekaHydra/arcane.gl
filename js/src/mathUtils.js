@@ -22,4 +22,10 @@ var arcLength = function(j, jLen, scale) {
      */
     var splitInd = j <= (jLen/2.0) ? j : Math.abs(j-jLen);
     return (360./(splitInd/jLen)*Math.PI*(scale/2.0))/180.0;
-}
+};
+
+var randomizer = function(scalar, center){
+    scalar = scalar || 1;
+    center = center || 0;
+    return Math.sqrt(Math.random()*scalar +.00001) - center;
+};
