@@ -11,7 +11,6 @@ var render = function (cycles) {
     var boost = render.boost || 0;
     // enter loop if BitArray exists and play button has been pressed
     if(array && typeof array === 'object' && array.length > 0 && $('#play').length === 0) {
-        console.log("render");
         // increment counter each second
         if (cycles - last > 1000) {
             last = cycles;

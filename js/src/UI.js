@@ -10,6 +10,6 @@ var play = function() {
         $(this).remove();
     });
     // starts the audio
-    //Audio(null, true)
-    //render(true);
+    source.start(0);
+    render();
 };

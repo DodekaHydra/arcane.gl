@@ -77,14 +77,12 @@ for(var i = 0; i < 7; i++) {
 
 // On song selection, load the visualizer
 $('#songChoice').on('change', function(){
-    debugger;
     var path = $('#songPath').text();
-    Audio(path, false, function(array, boost){
-        console.log('on audio process');
+    audio(path, false, function(array, boost){
         render.array = array;
         render.boost = boost;
     });
-    render(1);
+    //render();
 });
 
 
