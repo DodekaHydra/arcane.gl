@@ -1,85 +1,16 @@
-var scene = new THREE.Scene();
-var camera = new THREE.PerspectiveCamera(50, $(window).width() / $(window).height(), 1, 1000);
-var renderer = new THREE.WebGLRenderer();
-var cubes = [];
-var controls;
 
-document.body.appendChild(renderer.domElement);
-
-var i = 0;
-// cube factory
-for(var x = 0; x < 30; x += 2) {
-    var j = 0;
-    cubes[i] = [];
-    for(var y = 0; y < 30; y += 2) {
-        var geometry = new THREE.CubeGeometry(1.0, 1.0, 1.0);
-        var material = new THREE.MeshPhongMaterial({
-            ambient: 0x808080,
-            specular: 0xffffff,
-            shininess: 20,
-            reflectivity: 5.5
-        });
-
-        cubes[i][j] = new THREE.Mesh(geometry, material);
-        cubes[i][j].position = new THREE.Vector3(x, y, 0);
-
-        scene.add(cubes[i][j]);
-        j++;
-    }
-    i++;
-}
-// thru line 74 is all pretty boilerplaye
-var light = new THREE.AmbientLight(0x505050);
-scene.add(light);
-
-var uniforms = {
-    color: { type: "c", value: new THREE.Color( 0xffffff ) }
-};
-
-var attributes = {
-    size: { type: 'f', value: [] }
-};
-
-for (var q=0; q < attributes.size.value.length; q++) {
-    attributes.size.value[q] = 5 + Math.floor(Math.random() * 10);
-}
-
-/* Lighting initialization */
-var directionalLight,
-    lightPosition = [ [0, 1, 1],
-                      [1, 1, 0],
-                      [0,-1,-1],
-                      [-1,-1,0] ];
-
-for (var lights = 0; lights < lightPosition.length; lights++){
-    debugger;
-    directionalLight = new THREE.DirectionalLight(0xffffff, 0.7);
-    directionalLight.position.set(lightPosition[lights][0], lightPosition[lights][1], lightPosition[lights][2]);
-    scene.add(directionalLight);
-}
-
-// equations to center camera init point around cube locations
-var len = cubes.length - 1.;
-camera.position.x = (cubes[len][0].position.x + cubes[0][0].position.x) / 2.0;
-camera.position.y = (cubes[0][len].position.y + cubes[0][0].position.y) / 2.0;
-camera.position.z = cubes[0][0].position.z + 80.;
-
-controls = new THREE.OrbitControls(camera, $('canvas'));
-controls.addEventListener('change', render);
-
-for(var i = 0; i < 7; i++) {
-    controls.pan(new THREE.Vector3( 1, 0, 0 ));
-    controls.pan(new THREE.Vector3( 0, 1, 0 ));
-}
 
 // TODO: delete this
 var tempcount=0;
 // @last increments @counter each second
 // @visual represents the starting point for the visual style
 var last = 0, counter = 0, visual = 1;
-var render = function (cycles) {
+var render = function (cycles, array, boost) {
+    cycles = cycles || requestAnimationFrame(render);
+    array = array || null;
+    boost = boost || 0;
     // enter loop if BitArray exists and play button has been pressed
-    if(typeof array === 'object' && array.length > 0 && $('#play').length === 0) {
+    if(array && typeof array === 'object' && array.length > 0 && $('#play').length === 0) {
         // increment counter each second
         if (cycles - last > 1000) {
             last = cycles;
@@ -186,5 +117,3 @@ var render = function (cycles) {
     controls.update();
     renderer.render(scene, camera);
 };
-
-renderer.setSize($(window).width(), $(window).height());

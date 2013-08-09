@@ -4,18 +4,12 @@
  * I'm going to incorporate sliders to customize visualizations in real time
  */
 
-// On song selection, load the visualizer
-$('#songChoice').on('change', function(){
-    //debugger;
-    var test = $('#songPath').text();
-    Audio(test);
-    render(0);
-});
-// called when play button overlay is clicked. plays audio; runs render()
-var play = function() {
+// called when play button overlay is clicked; plays audio+runs render()
+var play = function(source) {
+    debugger;
     $('#play').fadeOut('normal', function() {
         $(this).remove();
     });
-    // initialize sources now
+    // starts the audio
     source.start(0);
 };

@@ -3,14 +3,12 @@
 //and enabled knockout functionality
 //Most of my interaction with this file has been largely trimming the fat
 
-var source, gainNode; // terrible globals! UI.js needs these; fix later
-var array = [], boost = 0; // more terrible globals! visualizer needs these
 /*
  * @param, optional user-selected song choice via knockout dropdown
  */
 
-var Audio = function(passedUrl){
-    var context, sourceJs, analyser, buffer,
+var Audio = function(passedUrl, array, boost){
+    var context, sourceJs, analyser, buffer, source,
         url = passedUrl || './data/Amon-Tobin_Surge.mp3';
 
     try {
@@ -84,10 +82,11 @@ var Audio = function(passedUrl){
                         boost += array[i];
                     }
                     boost = boost / array.length;
+                    render(null, array, boost);
                 };
 
                 // popup
-                $('body').append($('<div onclick="play();" id="play" style="width: ' +
+                $('body').append($('<div onclick="play('+source+');" id="play" style="width: ' +
                                  $(window).width() + 'px; height: ' + $(window).height() +
                                  'px;"><div id="play_link"></div></div>'));
                 var $play_link = $('#play_link'),
