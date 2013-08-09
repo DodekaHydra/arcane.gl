@@ -70,16 +70,21 @@ for(var i = 0; i < 7; i++) {
     controls.pan(new THREE.Vector3( 1, 0, 0 ));
     controls.pan(new THREE.Vector3( 0, 1, 0 ));
 }
-render();
+//render();
 //
 //var source, gainNode; // terrible globals! UI.js needs these; fix later
 //var array = [], boost = 0; // more terrible globals! visualizer needs these
 
 // On song selection, load the visualizer
 $('#songChoice').on('change', function(){
+    debugger;
     var path = $('#songPath').text();
-    Audio(path, [], 0);
-    //render(0);
+    Audio(path, false, function(array, boost){
+        console.log('on audio process');
+        render.array = array;
+        render.boost = boost;
+    });
+    render(1);
 });
 
 

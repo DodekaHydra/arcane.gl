@@ -2,15 +2,16 @@
 
 // TODO: delete this
 var tempcount=0;
+
 // @last increments @counter each second
 // @visual represents the starting point for the visual style
 var last = 0, counter = 0, visual = 1;
-var render = function (cycles, array, boost) {
-    cycles = cycles || requestAnimationFrame(render);
-    array = array || null;
-    boost = boost || 0;
+var render = function (cycles) {
+    var array = render.array || null;
+    var boost = render.boost || 0;
     // enter loop if BitArray exists and play button has been pressed
     if(array && typeof array === 'object' && array.length > 0 && $('#play').length === 0) {
+        console.log("render");
         // increment counter each second
         if (cycles - last > 1000) {
             last = cycles;

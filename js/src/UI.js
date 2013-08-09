@@ -5,11 +5,11 @@
  */
 
 // called when play button overlay is clicked; plays audio+runs render()
-var play = function(source) {
-    debugger;
+var play = function() {
     $('#play').fadeOut('normal', function() {
         $(this).remove();
     });
     // starts the audio
-    source.start(0);
+    //Audio(null, true)
+    //render(true);
 };
