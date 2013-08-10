@@ -82,10 +82,18 @@ for(var i = 0; i < 7; i++) {
 // On song selection, load the audio with visualizer callback
 $('#songChoice').on('change', function(){
     var path = $('#songPath').text();
-
+    var counter = 0;
+    var time = new Date(), time2;
     audio(path, false, function(array, boost){
+        counter++;
         render.array = array;
         render.boost = boost;
+        render.newData = true;
+        time2 = new Date();
+        if (time2 - time > 1000){
+            time = time2;
+            console.log(counter);
+        }
     });
 
 });

@@ -6,7 +6,8 @@ var last = 0, counter = 0, lastScale=[], cycleCount = 0, position = 3,
 var render = function (cycles) {
     var array = render.array || null;
     var boost = render.boost || 0;
-    new THREE.Matrix4().makeRotationY(.001*randY ).multiplyVector3( camera.up );
+    var newData = this.newData || false;
+    //new THREE.Matrix4().makeRotationY(.001*randY ).multiplyVector3( camera.up );
 
     // enter loop if BitArray exists and play button has been pressed
     if(array && typeof array === 'object' && array.length > 0 && $('#play').length === 0) {
@@ -48,7 +49,17 @@ var render = function (cycles) {
                 k += (k < array.length ? 1 : 0);
 
                 lastLen = lastScale.length;
-                tempScale[i][j] = (array[k] + boost) / 30;
+
+                /** @frameTween : current audio data; 24 hz[==fps]
+                 **   render()  : 60fps
+                 **
+                 ** @tempScale  :  on newData, render a point between current+previous audio frames
+                 **                otherwise, render current audio frame
+                 ** render() will undetectably be 1 visual frame behind the current audio */
+                var frameTween = (array[k] + boost) / 30;
+                tempScale[i][j] = newData ? (lastScale[lastLen-1][i][j]+frameTween)/2 : frameTween;
+                newData = false;
+
                 var smoothScale = cycleCount>0 ? smoothen(tempScale[i][j], lastScale[lastLen-1][i][j]) : tempScale[i][j];
                 var damp = dampen(tempScale[i][j]);
 
@@ -89,9 +100,9 @@ var render = function (cycles) {
                         cubes[i][j].position.z = 30.*tempScale[i][j]*((Math.cos(cycles/80000)*Math.sin(cycles/75000)) %.3);
                         break;
 
-                    case 4:
-                        cubes[i][j].position.x = __something__;
-                        break;
+                    //case 4:
+                    //    cubes[i][j].position.x = __something__;
+                    //    break;
 
                 }
 
