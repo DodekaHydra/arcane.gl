@@ -1,6 +1,6 @@
 // @last    increments @counter each second
 // @visual  starting point for the visual style
-var last = 0, counter = 0, lastScale=[], cycleCount = 0, position = 1,
+var last = 0, counter = 0, lastScale=[], cycleCount = 0, position = 3,
     randX = randomizer(5), randY = randomizer(5), randZ = randomizer(5);
 var render = function (cycles) {
     var array = render.array || null;
@@ -70,10 +70,11 @@ var render = function (cycles) {
                     case 3:
                         cubes[i][j].position.x = (15*i + j)*2;
                         cubes[i][j].position.y = (15*j + i)*2;
-                        cubes[i][j].position.z = 50.*Math.cos(cycles/80000)*Math.sin(cycles/75000);
+                        // TODO: FIX
+                        cubes[i][j].position.z = 30.*tempScale[i][j]*((Math.cos(cycles/80000)*Math.sin(cycles/75000)) %.3);
                         break;
-                    //case 4:
-                    //    cubes[i][j].position.x
+                    case 4:
+                        cubes[i][j].position.x
                 }
 
                 if (counter < 10 && (position+1)%4) {
@@ -81,8 +82,9 @@ var render = function (cycles) {
                     cubes[i][j].position.z = position%2 ? (i)*timeScale+damp : -1*i*timeScale+damp;
                 } else if (counter < 20) {
                         cubes[i][j].rotation.z -= .01;
-                        cubes[i][j].rotation.y += Math.pow(Math.abs(Math.sin(cycles/120000)),2);
-                        cubes[i][j].rotation.x += Math.pow(Math.abs(Math.sin(cycles/100000)),2);
+                    // TODO: FIX
+                        cubes[i][j].rotation.y += Math.abs(Math.sin(cycles/120000)%.2);
+                        cubes[i][j].rotation.x += Math.abs(Math.cos(cycles/100000)%.2);
                 } else if (counter < 35) {
                     cubes[i][j].rotation.y -= .01*randY;
                     cubes[i][j].rotation.x -= .01*randX;
