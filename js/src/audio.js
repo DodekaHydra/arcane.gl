@@ -8,18 +8,23 @@
  */
 var source;
 var audio = function(passedUrl, startPlay, cb){
+
     var context;
+
     try {
+
         if(typeof webkitAudioContext === 'function') {
             context = new webkitAudioContext();
-        }
-        else {
+        } else {
             context = new AudioContext();
         }
+
     }
+
     catch(e) {
         $('#info').text('Web audio API is not supported in this browser');
     }
+
     var array, boost, sourceJs, analyser, buffer, request,
         url = passedUrl || './data/Amon-Tobin_Surge.mp3';
 
@@ -39,7 +44,9 @@ var audio = function(passedUrl, startPlay, cb){
          */
         context.decodeAudioData(
             request.response,
+
             function(buffer) {
+
                 if(!buffer) {
                     $info.text('Error decoding file data');
                     return;
@@ -75,26 +82,34 @@ var audio = function(passedUrl, startPlay, cb){
 
 
                 sourceJs.onaudioprocess = function(e) {
+
                     array = new Uint8Array(analyser.frequencyBinCount);
                     analyser.getByteFrequencyData(array);
                     boost = 0;
+
                     for (var i = 0; i < array.length; i++) {
                         boost += array[i];
                     }
+
                     boost = boost / array.length;
                     if(cb) cb(array, boost);
+
                 };
 
                 // popup
                 $('body').append($('<div onclick="play();" id="play" style="width: ' +
                                  $(window).width() + 'px; height: ' + $(window).height() +
                                  'px;"><div id="play_link"></div></div>'));
+
                 var $play_link = $('#play_link'),
                     $play = $('#play');
+
                 $play_link.css('top', ($(window).height() / 2 - $play_link.height() / 2) + 'px');
                 $play_link.css('left', ($(window).width() / 2 - $play_link.width() / 2) + 'px');
                 $play.fadeIn();
+
             },
+
             function(error) {
                 $info.text('Decoding error:' + error);
             }

@@ -7,12 +7,17 @@ var controls;
 document.body.appendChild(renderer.domElement);
 
 var i = 0;
+
 // cube factory
 for(var x = 0; x < 30; x += 2) {
+
     var j = 0;
     cubes[i] = [];
+
     for(var y = 0; y < 30; y += 2) {
+
         var geometry = new THREE.CubeGeometry(1.0, 1.0, 1.0);
+
         var material = new THREE.MeshPhongMaterial({
             ambient: 0x808080,
             specular: 0xffffff,
@@ -28,6 +33,7 @@ for(var x = 0; x < 30; x += 2) {
     }
     i++;
 }
+
 var light = new THREE.AmbientLight(0x505050);
 scene.add(light);
 
@@ -72,20 +78,16 @@ for(var i = 0; i < 7; i++) {
     controls.pan(new THREE.Vector3( 1, 0, 0 ));
     controls.pan(new THREE.Vector3( 0, 1, 0 ));
 }
-//render();
-//
-//var source, gainNode; // terrible globals! UI.js needs these; fix later
-//var array = [], boost = 0; // more terrible globals! visualizer needs these
 
-// On song selection, load the visualizer
+// On song selection, load the audio with visualizer callback
 $('#songChoice').on('change', function(){
     var path = $('#songPath').text();
+
     audio(path, false, function(array, boost){
         render.array = array;
         render.boost = boost;
     });
-    //render();
-});
 
+});
 
 renderer.setSize($(window).width(), $(window).height());
