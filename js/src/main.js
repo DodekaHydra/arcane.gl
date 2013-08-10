@@ -34,14 +34,17 @@ for(var x = 0; x < 30; x += 2) {
     i++;
 }
 
+
 var light = new THREE.AmbientLight(0x505050);
 scene.add(light);
+
+
+renderer.setClearColor( 0x012121, 1 );
+
 
 var uniforms = {
     color: { type: "c", value: new THREE.Color( 0xffffff ) }
 };
-
-renderer.setClearColor( 0x012121, 1 );
 
 var attributes = {
     size: { type: 'f', value: [] }
@@ -50,6 +53,7 @@ var attributes = {
 for (var q=0; q < attributes.size.value.length; q++) {
     attributes.size.value[q] = 5 + Math.floor(Math.random() * 10);
 }
+
 
 /* Lighting initialization */
 var directionalLight,
@@ -64,6 +68,7 @@ for (var lights = 0; lights < lightPosition.length; lights++){
     scene.add(directionalLight);
 }
 
+
 // equations to center camera init point around cube locations
 var len = cubes.length - 1.;
 camera.position.x = (cubes[len][0].position.x + cubes[0][0].position.x) / 2.0;
@@ -71,29 +76,35 @@ camera.position.y = (cubes[0][len].position.y + cubes[0][0].position.y) / 2.0;
 camera.position.z = cubes[0][0].position.z + 80.;
 len = null;
 
+
 controls = new THREE.OrbitControls(camera, $('canvas'));
 controls.addEventListener('change', render);
+
 
 for(var i = 0; i < 7; i++) {
     controls.pan(new THREE.Vector3( 1, 0, 0 ));
     controls.pan(new THREE.Vector3( 0, 1, 0 ));
 }
 
+
 // On song selection, load the audio with visualizer callback
 $('#songChoice').on('change', function(){
+
     var path = $('#songPath').text();
     var counter = 0;
-    var time = new Date(), time2;
+
+    /** audio(path, startPlay, callback)
+     ** callback() : audio-sensitive visualizer data
+     **   @array   : frequency data array
+     **   @boost   : data array scalar
+     **   @newData : alerts render() to new data
+     **   @counter : total number of audio frames */
     audio(path, false, function(array, boost){
         counter++;
         render.array = array;
         render.boost = boost;
         render.newData = true;
-        time2 = new Date();
-        if (time2 - time > 1000){
-            time = time2;
-            console.log(counter);
-        }
+        render.audioFrame = counter;
     });
 
 });

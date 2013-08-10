@@ -1,6 +1,7 @@
 // @last    increments @counter each second
 // @visual  starting point for the visual style
 var last = 0, counter = 0, lastScale=[], cycleCount = 0, position = 3,
+    animationTrigger = false, triggerDetector = 0,
     randX = randomizer(5), randY = randomizer(5), randZ = randomizer(5);
 
 var render = function (cycles) {
@@ -58,7 +59,9 @@ var render = function (cycles) {
                  ** render() will undetectably be 1 visual frame behind the current audio */
                 var frameTween = (array[k] + boost) / 30;
                 tempScale[i][j] = newData ? (lastScale[lastLen-1][i][j]+frameTween)/2 : frameTween;
-                newData = false;
+
+                if (newData)
+                    triggerDetector += tempScale[i][j];
 
                 var smoothScale = cycleCount>0 ? smoothen(tempScale[i][j], lastScale[lastLen-1][i][j]) : tempScale[i][j];
                 var damp = dampen(tempScale[i][j]);
@@ -66,7 +69,7 @@ var render = function (cycles) {
                 var degree = arcDeg*(j);
                 var radian = degree*(Math.PI/180.);
 
-                // @scale.y; primary scalar domain
+                /** @scale.y; primary scalar domain **/
                 cubes[i][j].scale.y         = 2.0*smoothScale + 6.0*tempScale[i][j];
                      cubes[i][j].scale.x    = smoothScale/randX+damp;
                      cubes[i][j].scale.z    = smoothScale/randZ+damp;
@@ -112,7 +115,6 @@ var render = function (cycles) {
 
                 } else if (counter < 20) {
                         cubes[i][j].rotation.z -= .01;
-                    // TODO: FIX
                         cubes[i][j].rotation.y += Math.abs(Math.sin(cycles/120000)%.2);
                         cubes[i][j].rotation.x += Math.abs(Math.cos(cycles/100000)%.2);
 
@@ -120,6 +122,7 @@ var render = function (cycles) {
                     cubes[i][j].rotation.y -= .01*randY;
                     cubes[i][j].rotation.x -= .01*randX;
                     cubes[i][j].rotation.z += .01;
+                    debugger;
 
                 } else if (counter < maxCycle) {
                     cubes[i][j].rotation.y += Math.sin(cycles/5000)/(maxCycle-counter);
@@ -146,7 +149,12 @@ var render = function (cycles) {
 
         if (lastScale.length>100)
             lastScale.shift();
-        lastScale.push(tempScale);
+        if (newData) {
+            lastScale.push(tempScale);
+            newData = false;
+            console.log(triggerDetector);
+            triggerDetector = 0;
+        }
 
         cycleCount++;
     }
