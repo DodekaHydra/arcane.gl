@@ -1,13 +1,15 @@
 // @last    increments @counter each second
 // @visual  starting point for the visual style
-var last = 0, counter = 0, lastScale=[], cycleCount = 0, position = 3,
+var last = 0, lastScale=[], cycleCount = 0, position = 3,
     animationTrigger = false, triggerDetector = 0,
     randX = randomizer(5), randY = randomizer(5), randZ = randomizer(5);
 
 var render = function (cycles) {
     var array = render.array || null;
     var boost = render.boost || 0;
-    var newData = this.newData || false;
+    var newData = render.newData || false;
+    var audioFrame = render.audioFrame || 0;
+    var counter = counter || 0;
     //new THREE.Matrix4().makeRotationY(.001*randY ).multiplyVector3( camera.up );
 
     // enter loop if BitArray exists and play button has been pressed
@@ -41,7 +43,6 @@ var render = function (cycles) {
         for(var i = 0; i < iLen; i++) {
 
             tempScale[i] = [];
-            lastScale[i] = lastScale[i] || [];
 
             for(var j = 0; j < jLen; j++) {
 
@@ -58,12 +59,12 @@ var render = function (cycles) {
                  **                otherwise, render current audio frame
                  ** render() will undetectably be 1 visual frame behind the current audio */
                 var frameTween = (array[k] + boost) / 30;
-                tempScale[i][j] = newData ? (lastScale[lastLen-1][i][j]+frameTween)/2 : frameTween;
+                tempScale[i][j] = (newData && lastLen>5) ? (lastScale[lastLen-1][i][j]+frameTween)/2 : frameTween;
 
                 if (newData)
                     triggerDetector += tempScale[i][j];
 
-                var smoothScale = cycleCount>0 ? smoothen(tempScale[i][j], lastScale[lastLen-1][i][j]) : tempScale[i][j];
+                var smoothScale = lastLen>5 ? smoothen(tempScale[i][j], lastScale[lastLen-1][i][j]) : tempScale[i][j];
                 var damp = dampen(tempScale[i][j]);
 
                 var degree = arcDeg*(j);
@@ -149,11 +150,12 @@ var render = function (cycles) {
 
         if (lastScale.length>100)
             lastScale.shift();
+
         if (newData) {
             lastScale.push(tempScale);
-            newData = false;
             console.log(triggerDetector);
             triggerDetector = 0;
+            newData = false;
         }
 
         cycleCount++;

@@ -6,8 +6,8 @@
 /*
  * @param, optional user-selected song choice via knockout dropdown
  */
-var source;
-var audio = function(passedUrl, startPlay, cb){
+var source, sourceJs, analyser;
+var audio = function(passedUrl){
 
     var context;
 
@@ -25,8 +25,8 @@ var audio = function(passedUrl, startPlay, cb){
         $('#info').text('Web audio API is not supported in this browser');
     }
 
-    var array, boost, sourceJs, analyser, buffer, request,
-        url = passedUrl || './data/Amon-Tobin_Surge.mp3';
+    var buffer, request,
+        url = passedUrl || null;
 
     request = new XMLHttpRequest();
     request.open("GET", url, true);
@@ -79,22 +79,6 @@ var audio = function(passedUrl, startPlay, cb){
                 source.connect(analyser);
                 analyser.connect(sourceJs);
                 source.connect(context.destination);
-
-
-                sourceJs.onaudioprocess = function(e) {
-
-                    array = new Uint8Array(analyser.frequencyBinCount);
-                    analyser.getByteFrequencyData(array);
-                    boost = 0;
-
-                    for (var i = 0; i < array.length; i++) {
-                        boost += array[i];
-                    }
-
-                    boost = boost / array.length;
-                    if(cb) cb(array, boost);
-
-                };
 
                 // popup
                 $('body').append($('<div onclick="play();" id="play" style="width: ' +

@@ -13,5 +13,39 @@ var play = function() {
 
     // starts the audio
     source.start(0);
+
+    var counter = 0;
+
+    /** onAudio(callback)
+     ** callback() : audio-sensitive visualizer data
+     **   @array   : frequency data array
+     **   @boost   : data array scalar
+     **   @newData : alerts render() to new data
+     **   @counter : total number of audio frames */
+    onAudio(function(array, boost){
+        counter++;
+        render.array = array;
+        render.boost = boost;
+        render.newData = true;
+        render.audioFrame = counter;
+    });
+
     render();
+};
+
+var onAudio = function(cb){
+
+    sourceJs.onaudioprocess = function(e) {
+
+        var array = new Uint8Array(analyser.frequencyBinCount);
+        analyser.getByteFrequencyData(array);
+        var boost = 0;
+
+        for (var i = 0; i < array.length; i++) {
+            boost += array[i];
+        }
+        boost = boost/ array.length;
+        if(cb && boost>.1) cb(array, boost);
+
+    };
 };

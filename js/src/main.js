@@ -91,21 +91,7 @@ for(var i = 0; i < 7; i++) {
 $('#songChoice').on('change', function(){
 
     var path = $('#songPath').text();
-    var counter = 0;
-
-    /** audio(path, startPlay, callback)
-     ** callback() : audio-sensitive visualizer data
-     **   @array   : frequency data array
-     **   @boost   : data array scalar
-     **   @newData : alerts render() to new data
-     **   @counter : total number of audio frames */
-    audio(path, false, function(array, boost){
-        counter++;
-        render.array = array;
-        render.boost = boost;
-        render.newData = true;
-        render.audioFrame = counter;
-    });
+    audio(path);
 
 });
 
