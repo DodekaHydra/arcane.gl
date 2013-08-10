@@ -21,10 +21,8 @@ var render = function (cycles) {
         }
         // k represents an index in the bit array
         var k = 0;
-        // 'circle' is the only meaningful visual at the moment
-        // 'grid' works but is boring
-        var styleList = ['circle', 'fan', 'triangle'],
-            iLen = cubes.length, jLen = cubes[0].length,
+
+        var iLen = cubes.length, jLen = cubes[0].length,
             arcDeg = 360./iLen, maxCycle = 50,
             lotusSize = [], tempScale = [],
             rand9 = randomizer(9), rand4 = randomizer(4);
@@ -44,6 +42,7 @@ var render = function (cycles) {
                 var degree = arcDeg*(j);
                 var radian = degree*(Math.PI/180.);
                 var damp = dampen(tempScale[i][j]);
+
                 cubes[i][j].scale.y    = 2.0*smoothScale + 6.0*tempScale[i][j];
                 cubes[i][j].scale.x    = smoothScale/randX+damp;
                 cubes[i][j].scale.z    = smoothScale/randZ+damp;
