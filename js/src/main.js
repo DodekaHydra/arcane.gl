@@ -1,5 +1,5 @@
 var scene = new THREE.Scene();
-var camera = new THREE.PerspectiveCamera(50, $(window).width() / $(window).height(), 1, 1000);
+var camera = new THREE.PerspectiveCamera(50, $(window).width() / $(window).height(), 1, 10000);
 var renderer = new THREE.WebGLRenderer();
 var cubes = [];
 var controls;
@@ -34,6 +34,8 @@ scene.add(light);
 var uniforms = {
     color: { type: "c", value: new THREE.Color( 0xffffff ) }
 };
+
+renderer.setClearColor( 0x012121, 1 );
 
 var attributes = {
     size: { type: 'f', value: [] }

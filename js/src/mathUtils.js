@@ -29,3 +29,17 @@ var randomizer = function(scalar, center){
     center = center || 0;
     return Math.sqrt(Math.random()*scalar +.00001) - center;
 };
+
+var dampen = function(scale) {
+    return Math.log(Math.pow(scale,4)) > 0.5 ? Math.log(Math.pow(scale,4)) : 0.5;
+};
+
+var smoothen= function(current, last){
+    last = last || 0;
+    var smooth = current - last;
+    /* smoothScale = normalization between previous and current vals
+     * smoothScale = smoothScale^2/3
+     */
+    return smooth >  1  ? Math.pow(smooth, 2/3) :
+           smooth >= 0  ? smooth : -1.0*Math.pow(Math.abs(smooth), 2/3);
+};
