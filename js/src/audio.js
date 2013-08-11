@@ -63,7 +63,7 @@ var audio = function(passedUrl){
                  *  WebAudio volume control
                  */
 
-                gainNode = context.createGainNode();
+                var gainNode = context.createGainNode();
                 source.connect(gainNode);
                 gainNode.connect(context.destination);
 

@@ -42,9 +42,9 @@ scene.add(light);
 renderer.setClearColor( 0x012121, 1 );
 
 
-var uniforms = {
-    color: { type: "c", value: new THREE.Color( 0xffffff ) }
-};
+//var uniforms = {
+//    color: { type: "c", value: new THREE.Color( 0xffffff ) }
+//};
 
 var attributes = {
     size: { type: 'f', value: [] }
@@ -81,7 +81,7 @@ controls = new THREE.OrbitControls(camera, $('canvas'));
 controls.addEventListener('change', render);
 
 
-for(var i = 0; i < 7; i++) {
+for(var z = 0; z < 7; z++) {
     controls.pan(new THREE.Vector3( 1, 0, 0 ));
     controls.pan(new THREE.Vector3( 0, 1, 0 ));
 }

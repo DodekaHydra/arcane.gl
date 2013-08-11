@@ -14,7 +14,7 @@ var play = function() {
     // starts the audio
     source.start(0);
 
-    var counter = 0;
+    var audioFrame = 0;
 
     /** onAudio(callback)
      ** callback() : audio-sensitive visualizer data
@@ -23,11 +23,11 @@ var play = function() {
      **   @newData : alerts render() to new data
      **   @counter : total number of audio frames */
     onAudio(function(array, boost){
-        counter++;
+        audioFrame++;
         render.array = array;
         render.boost = boost;
         render.newData = true;
-        render.audioFrame = counter;
+        render.audioFrame = audioFrame;
     });
 
     render();
