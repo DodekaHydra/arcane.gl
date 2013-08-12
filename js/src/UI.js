@@ -14,20 +14,15 @@ var play = function() {
     // starts the audio
     source.start(0);
 
-    var audioFrame = 0;
-
     /** onAudio(callback)
      ** callback() : audio-sensitive visualizer data
      **   @array   : frequency data array
      **   @boost   : data array scalar
-     **   @newData : alerts render() to new data
-     **   @counter : total number of audio frames */
+     **   @newData : alerts render() to new data */
     onAudio(function(array, boost){
-        audioFrame++;
         render.array = array;
         render.boost = boost;
         render.newData = true;
-        render.audioFrame = audioFrame;
     });
 
     render();

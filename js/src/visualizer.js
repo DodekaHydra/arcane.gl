@@ -1,14 +1,13 @@
 // @last    increments @counter each second
 // @visual  starting point for the visual style
-var last = 0, lastScale=[], cycleCount = 0, sceneSelector = 4, counter = 0, lastPositionScale,
-    transitionTrigger = false, lastTriggerDetector, triggerFlag = false, sceneStyle = 2, transitionCounter = 0,
+var last = 0, lastScale=[], cycleCount = 0, sceneSelector = 5, counter = 0, lastPositionScale,
+    lastTriggerDetector, triggerFlag = false, sceneStyle = 2, transitionCounter = 0,
     randX = randomizer(5), randY = randomizer(5), randZ = randomizer(5);
 
 var render = function (cycles) {
     var array = render.array || null;
     var boost = render.boost || 0;
     var newData = render.newData || false;
-    var audioFrame = render.audioFrame || 0;
     var triggerDetector = 0;
     var incrementScene = false;
     //new THREE.Matrix4().makeRotationY(.001*randY ).multiplyVector3( camera.up );
@@ -39,9 +38,7 @@ var render = function (cycles) {
          * @tempScale = current scale sequence
          */
         var iLen = cubes.length, jLen = cubes[0].length,
-                arcDeg = 360./iLen, maxCycle = 50,
-                lotusSize = [], tempScale = [],
-                rand9 = randomizer(9), rand4 = randomizer(4);
+            arcDeg = 360./iLen, maxCycle = 50, tempScale = [];
 
         for(var i = 0; i < iLen; i++) {
 
@@ -69,6 +66,7 @@ var render = function (cycles) {
                     triggerDetector += tempScale[i][j];
 
                 var smoothScale = lastFrameTween ? smoothen(tempScale[i][j], lastFrameTween) : tempScale[i][j];
+
                 var damp = dampen(tempScale[i][j]);
 
                 var degree = arcDeg*(j);
@@ -82,15 +80,17 @@ var render = function (cycles) {
                 /** @positionScale, time scalar for position
                  ** range(timeScale) == [10-50]
                  ** maxCycle         == 50 */
-                var positionScale = (counter < maxCycle-1 && !lastPositionScale || lastPositionScale<(timeScale+10)/(maxCycle/5.0)) ?
-                                    (timeScale+10)/(maxCycle/5.0) : 1;
+                var positionScale = (counter < maxCycle-1) &&
+                                    (!lastPositionScale || lastPositionScale < (timeScale+10)/(maxCycle/5.0)) ?
+                                    (timeScale+10) / (maxCycle/5.0) : 1;
                 lastPositionScale = positionScale;
 
+                // geometric arrangements of cubes
                 switch (sceneSelector){
 
                     case 0: // expanding cluster
-                        cubes[i][j].position.x = (iLen-i+positionScale)*Math.cos(radian);
-                        cubes[i][j].position.y = (iLen-i+positionScale)*Math.sin(radian);
+                        cubes[i][j].position.x = smoothScale+((iLen-(i+1))*positionScale)*Math.cos(radian);
+                        cubes[i][j].position.y = smoothScale+((iLen-(i+1))*positionScale)*Math.sin(radian);
                         break;
 
                     case 1: // lotus
@@ -115,44 +115,48 @@ var render = function (cycles) {
                         cubes[i][j].position.z = (i*iLen - iLen*iLen/2);
                         break;
 
-                    case 5:
-                        cubes[i][j].position.x = Math.cos((arcLength(i+1, iLen, smoothScale))*(iLen*i+j)*positionScale*damp);
-                        cubes[i][j].position.y = Math.sin((arcLength(i+1, iLen, smoothScale))*(iLen*i+j)*positionScale*damp);
-                        cubes[i][j].position.z = (i*iLen - iLen*iLen/2);
+                    case 5: // bits be shiftin'!
+                        cubes[i][j].position.x = iLen-i*positionScale*Math.cos((arcLength(i+1, iLen, tempScale[i][j]>>1)>>2)+(2*(i+1)*(j+1)));
+                        cubes[i][j].position.y = iLen-i*positionScale*Math.sin((arcLength(i+1, iLen, tempScale[i][j]>>1)>>2)+(2*(i+1)*(j+1)));
+                        cubes[i][j].position.z = Math.sin(timeScale+i*j);
                         break;
 
                 }
 
+                // scene rotations; render fully cycles through these for each sceneSelector
                 switch (sceneStyle) {
+
                     case 0:
                         cubes[i][j].rotation.z = 3.*degree+Math.PI/2.;
-                        cubes[i][j].position.z = sceneSelector<3 ? (-i)+timeScale+damp : cubes[i][j].position.z;
+                        cubes[i][j].position.z = sceneSelector<3 ? i+timeScale+damp : cubes[i][j].position.z;
+                        //if (sceneSelector === 5)
+                            cubes[i][j].rotation.y += Math.random()*.01;
                         break;
 
                     case 1:
                         cubes[i][j].rotation.z -= .01;
-                        cubes[i][j].rotation.y += Math.abs(Math.sin(cycles/120000*smoothScale)%.05);
-                        cubes[i][j].rotation.x += Math.abs(Math.cos(cycles/100000*smoothScale)%.05);
+                        cubes[i][j].rotation.y += Math.abs(Math.sin(cycles/72000*smoothScale)%.05);
+                        cubes[i][j].rotation.x += Math.abs(Math.cos(cycles/60000*smoothScale)%.05);
                         break;
 
                     case 2:
-                        cubes[i][j].rotation.y -= .01*smoothScale;
-                        cubes[i][j].rotation.x -= .01*smoothScale;
+                        cubes[i][j].rotation.y -= .015*smoothScale;
+                        cubes[i][j].rotation.x -= .015*smoothScale;
                         cubes[i][j].rotation.z += .01;
                         break;
 
                     case 3:
                         cubes[i][j].rotation.y += Math.sin(cycles/18000*smoothScale)/(maxCycle+10-counter) + .001;
                         cubes[i][j].rotation.x -= Math.cos(cycles/18000*smoothScale)/(maxCycle+10-counter) + .001;
+                        //cubes[i][j].rotation.z -= Math.log(Math.cos(cycles>>4) * smoothScale);
                         break;
 
                     case 4:
                         incrementScene = true;
                         cubes[i][j].rotation.y = 0;
                         cubes[i][j].rotation.x = 0;
+                        cubes[i][j].rotation.z = 0;
                         break;
-                        //camera.lookAt(cubes[7][7].position);
-                        //camera.position.z += 100;
                 }
 
                 if (counter > maxCycle){
@@ -175,6 +179,7 @@ var render = function (cycles) {
         if (lastScale.length>10)
             lastScale.shift();
 
+        // if 4 styles have been cycled thru, move on to the next scene
         if (incrementScene) {
 
             // reset sceneStyle, increment sceneSelector
@@ -186,7 +191,9 @@ var render = function (cycles) {
             camera.position.copy(cubes[8][8].position);
             camera.position.z = cubes[8][8].position.z+500;
 
+        // if the current render() loop has new audio data
         } else if (newData) {
+
             // reset transition trigger on newData
             triggerFlag = false;
 
@@ -210,22 +217,3 @@ var render = function (cycles) {
     controls.update();
     renderer.render(scene, camera);
 };
-
-//case 'fan':
-/*
- * WIP
- * calls arcLength() in mathUtils.js
- * the goal here is to unravel each lotus like it were a fan
- */
-//  var arc = arcLength(j, jLen, tempScale[i][j]);
-//  if
-//  break;
-//                    /*
-//                     * WIP
-//                     */
-//                    case 'triangle':
-//                        var triLimit = triLimit || sumLimit(iLen);
-//                        cubes[i][j].scale.z = (tempScale[i][j] < 1 ? 1 : tempScale[i][j]);
-//                        cubes[i][j].position.y = (iLen*(i+1)+j)/2.;
-//                        cubes[i][j].position.x = (i+1)*j;
-//                        break;
