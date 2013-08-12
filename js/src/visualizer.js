@@ -106,19 +106,18 @@ var render = function (cycles) {
                     case 3: // wavy grid
                         cubes[i][j].position.x = (iLen*i + j)*2 - iLen*iLen/2 + damp;
                         cubes[i][j].position.y = (iLen*j + i)*2 - jLen*jLen/2 + damp;
-                        // TODO: FIX
                         cubes[i][j].position.z = (i+j+1)/2*tempScale[i][j]*(Math.cos(cycles/8000)*Math.sin(cycles/5000));
                         break;
 
-                    case 4:
+                    case 4: // comma-esque spiral shell
                         cubes[i][j].position.x = Math.cos(Math.log(arcLength(i+1, iLen, degree)))*i*j;
                         cubes[i][j].position.y = Math.sin(Math.log(arcLength(i+1, iLen, degree)))*i*j;
                         cubes[i][j].position.z = (i*iLen - iLen*iLen/2);
                         break;
 
                     case 5:
-                        cubes[i][j].position.x = Math.cos(Math.log(arcLength(i+1, iLen, degree)))+(iLen*i+j)*positionScale*damp;
-                        cubes[i][j].position.y = Math.sin(Math.log(arcLength(i+1, iLen, degree)))+(iLen*i+j)*positionScale*damp;
+                        cubes[i][j].position.x = Math.cos((arcLength(i+1, iLen, smoothScale))*(iLen*i+j)*positionScale*damp);
+                        cubes[i][j].position.y = Math.sin((arcLength(i+1, iLen, smoothScale))*(iLen*i+j)*positionScale*damp);
                         cubes[i][j].position.z = (i*iLen - iLen*iLen/2);
                         break;
 
@@ -127,7 +126,7 @@ var render = function (cycles) {
                 switch (sceneStyle) {
                     case 0:
                         cubes[i][j].rotation.z = 3.*degree+Math.PI/2.;
-                        cubes[i][j].position.z = sceneSelector+2 % 5 || sceneSelector+1 % 5 ? (-i)+timeScale+damp : cubes[i][j].position.z;
+                        cubes[i][j].position.z = sceneSelector<3 ? (-i)+timeScale+damp : cubes[i][j].position.z;
                         break;
 
                     case 1:
