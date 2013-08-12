@@ -1,7 +1,7 @@
 // @last    increments @counter each second
 // @visual  starting point for the visual style
-var last = 0, lastScale=[], cycleCount = 0, position = 3, counter = 0,
-    transitionTrigger = false, lastTriggerDetector, triggerFlag = false, transition = 0, transitionCounter = 0,
+var last = 0, lastScale=[], cycleCount = 0, sceneSelector = 2, counter = 0, lastPositionScale,
+    transitionTrigger = false, lastTriggerDetector, triggerFlag = false, sceneStyle = 2, transitionCounter = 0,
     randX = randomizer(5), randY = randomizer(5), randZ = randomizer(5);
 
 var render = function (cycles) {
@@ -10,7 +10,7 @@ var render = function (cycles) {
     var newData = render.newData || false;
     var audioFrame = render.audioFrame || 0;
     var triggerDetector = 0;
-    var incrementPosition = false;
+    var incrementScene = false;
     //new THREE.Matrix4().makeRotationY(.001*randY ).multiplyVector3( camera.up );
 
     // enter loop if BitArray exists and play button has been pressed
@@ -24,13 +24,11 @@ var render = function (cycles) {
         }
         // 3 conditions
         if( (transitionCounter > 15) ||
-            (transitionTrigger && transitionCounter > 10) ||
             (triggerFlag && transitionCounter > 5 && transitionCounter < 15 ) ) {
 
-            transition++;
-            transition = transition%5;
+            sceneStyle++;
+            sceneStyle = sceneStyle%5;
             transitionCounter = 0;
-            transitionTrigger = false;
         }
 
         // k represents an index in the bit array
@@ -84,9 +82,10 @@ var render = function (cycles) {
                 /** @positionScale, time scalar for position
                  ** range(timeScale) == [10-50]
                  ** maxCycle         == 50 */
-                var positionScale = (timeScale+10)/(maxCycle/5.);
+                var positionScale = (!lastPositionScale || lastPositionScale<(timeScale+10)/(maxCycle/5.0)) ? (timeScale+10)/(maxCycle/5.0) : timeScale;
+                lastPositionScale = positionScale;
 
-                switch (position%5){
+                switch (sceneSelector%5){
 
                     case 0: // expanding cluster
                         cubes[i][j].position.x = (iLen-i+positionScale)*Math.cos(radian);
@@ -99,61 +98,67 @@ var render = function (cycles) {
                         break;
 
                     case 2: // tight cluster
-                        cubes[i][j].position.x = (iLen-i+positionScale)/positionScale*damp*Math.cos(radian);
-                        cubes[i][j].position.y = (iLen-i+positionScale)/positionScale*damp*Math.sin(radian);
+                        cubes[i][j].position.x = ((iLen-i)*positionScale)/positionScale*damp*Math.cos(radian);
+                        cubes[i][j].position.y = ((iLen-i)*positionScale)/positionScale*damp*Math.sin(radian);
                         break;
 
                     case 3: // wavy grid
-                        cubes[i][j].position.x = (15*i + j)*2 - iLen*iLen/2;
-                        cubes[i][j].position.y = (15*j + i)*2 - jLen*jLen/2;
+                        cubes[i][j].position.x = (15*i + j)*2 - iLen*iLen/2 + damp;
+                        cubes[i][j].position.y = (15*j + i)*2 - jLen*jLen/2 + damp;
                         // TODO: FIX
-                        cubes[i][j].position.z = 30.*tempScale[i][j]*((Math.cos(cycles/80000)*Math.sin(cycles/75000)) %.3);
+                        cubes[i][j].position.z = 30.*tempScale[i][j]*((Math.cos(cycles/80000)*Math.sin(cycles/75000)));
                         break;
 
                     case 4:
                         cubes[i][j].position.x = Math.cos(radian);
-                        cubes[i][j].position.y = Math.cos(radian);
+                        cubes[i][j].position.y = Math.sin(radian);
                         cubes[i][j].position.z = ((i+j)*15 - 15*7.5);
                         break;
 
                 }
 
-                if ( transition === 0) {
-                    cubes[i][j].rotation.z = 3.*degree+Math.PI/2.;
-                    cubes[i][j].position.z = position+2 % 5 ? (-i)+timeScale+damp : cubes[i][j].position.z;
+                switch (sceneStyle % 5) {
+                    case 0:
+                        cubes[i][j].rotation.z = 3.*degree+Math.PI/2.;
+                        cubes[i][j].position.z = sceneSelector+2 % 5 || sceneSelector+1 % 5 ? (-i)+timeScale+damp : cubes[i][j].position.z;
+                        break;
 
-                } else if ( transition === 1 ) {
-                    cubes[i][j].rotation.z -= .01;
-                    cubes[i][j].rotation.y += Math.abs(Math.sin(cycles/120000)%.2);
-                    cubes[i][j].rotation.x += Math.abs(Math.cos(cycles/100000)%.2);
+                    case 1:
+                        cubes[i][j].rotation.z -= .01;
+                        cubes[i][j].rotation.y += Math.abs(Math.sin(cycles/120000*smoothScale)%.05);
+                        cubes[i][j].rotation.x += Math.abs(Math.cos(cycles/100000*smoothScale)%.05);
+                        break;
 
-                } else if ( transition === 2 ) {
-                    cubes[i][j].rotation.y -= .01*randY;
-                    cubes[i][j].rotation.x -= .01*randX;
-                    cubes[i][j].rotation.z += .01;
+                    case 2:
+                        cubes[i][j].rotation.y -= .01*smoothScale;
+                        cubes[i][j].rotation.x -= .01*smoothScale;
+                        cubes[i][j].rotation.z += .01;
+                        break;
 
+                    case 3:
+                        cubes[i][j].rotation.y += Math.sin(cycles/18000*smoothScale)/(maxCycle-counter) + .001;
+                        cubes[i][j].rotation.x -= Math.cos(cycles/18000*smoothScale)/(maxCycle-counter) + .001;
+                        break;
 
-                } else if ( transition === 3) {
-                    cubes[i][j].rotation.y += Math.sin(cycles/5000)/(maxCycle-counter);
-                    cubes[i][j].rotation.x -= Math.cos(cycles/5000)/(maxCycle-counter);
-
-                    //if (counter > 40)
-                        cubes[i][j].position.z = i*(50-timeScale)+damp;
-
-                } else  {
-                    // counter resets after 50 seconds
-                    transition = 0;
-                    incrementPosition = true;
-                    camera.lookAt(cubes[7][7].position);
-                    //camera.position.z += 100;
+                    case 4:
+                        incrementScene = true;
+                        break;
+                        //camera.lookAt(cubes[7][7].position);
+                        //camera.position.z += 100;
                 }
-                if (counter > 50)
-                    counter = 0;
+
+                if (counter > maxCycle){
+                    counter = 1;
+                    lastPositionScale = null;
+                }
+                if (counter > maxCycle-10)
+                    cubes[i][j].position.z = (i+1)*(maxCycle-timeScale)+damp;
+
 
                 // overly complicated color assignment
-                cubes[i][j].material.color.r = Math.abs(Math.sin(smoothScale+Math.log(tempScale[i][j]*(i+1))));
-                cubes[i][j].material.color.g = Math.abs(Math.cos(smoothScale+Math.log(tempScale[i][j]*(i+1))));
-                cubes[i][j].material.color.b = Math.abs(Math.tan(smoothScale+Math.log(tempScale[i][j]+tempScale[i][j])));
+                cubes[i][j].material.color.r = Math.abs(Math.sin(counter+smoothScale+Math.log(tempScale[i][j]*(i+1))));
+                cubes[i][j].material.color.g = Math.abs(Math.cos(counter-smoothScale+Math.log(tempScale[i][j]*(i+1))));
+                cubes[i][j].material.color.b = Math.abs(Math.sin(counter+smoothScale)*Math.cos(tempScale[i][j]*2));
 
             }
         }
@@ -162,9 +167,10 @@ var render = function (cycles) {
         if (lastScale.length>100)
             lastScale.shift();
 
-        if (incrementPosition) {
-
-            position++;
+        if (incrementScene) {
+            //debugger;
+            sceneStyle = 0;
+            sceneSelector++;
             triggerFlag = transitionTrigger = false;
 
         } else if (newData) {
@@ -175,7 +181,6 @@ var render = function (cycles) {
             triggerDetector += 20;
             if ( lastTriggerDetector &&
                ( (lastTriggerDetector *.75 > triggerDetector) || (lastTriggerDetector * 1.3333 < triggerDetector) ) ) {
-                transitionTrigger = true;
                 triggerFlag = true;
             }
 
@@ -186,7 +191,6 @@ var render = function (cycles) {
         cycleCount++;
     }
 
-    // update @cycles with current execution time
     requestAnimationFrame(render);
     controls.update();
     renderer.render(scene, camera);
