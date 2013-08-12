@@ -1,6 +1,6 @@
 // @last    increments @counter each second
 // @visual  starting point for the visual style
-var last = 0, lastScale=[], cycleCount = 0, sceneSelector = 2, counter = 0, lastPositionScale,
+var last = 0, lastScale=[], cycleCount = 0, sceneSelector = 4, counter = 0, lastPositionScale,
     transitionTrigger = false, lastTriggerDetector, triggerFlag = false, sceneStyle = 2, transitionCounter = 0,
     randX = randomizer(5), randY = randomizer(5), randZ = randomizer(5);
 
@@ -82,7 +82,8 @@ var render = function (cycles) {
                 /** @positionScale, time scalar for position
                  ** range(timeScale) == [10-50]
                  ** maxCycle         == 50 */
-                var positionScale = (!lastPositionScale || lastPositionScale<(timeScale+10)/(maxCycle/5.0)) ? (timeScale+10)/(maxCycle/5.0) : timeScale;
+                var positionScale = (counter < maxCycle-1 && !lastPositionScale || lastPositionScale<(timeScale+10)/(maxCycle/5.0)) ?
+                                    (timeScale+10)/(maxCycle/5.0) : 1;
                 lastPositionScale = positionScale;
 
                 switch (sceneSelector){
@@ -106,13 +107,19 @@ var render = function (cycles) {
                         cubes[i][j].position.x = (iLen*i + j)*2 - iLen*iLen/2 + damp;
                         cubes[i][j].position.y = (iLen*j + i)*2 - jLen*jLen/2 + damp;
                         // TODO: FIX
-                        cubes[i][j].position.z = (iLen+jLen)*tempScale[i][j]*((i+ j/(jLen/2))+(Math.cos(cycles/80000)*Math.sin(cycles/75000)));
+                        cubes[i][j].position.z = (i+j+1)/2*tempScale[i][j]*(Math.cos(cycles/8000)*Math.sin(cycles/5000));
                         break;
 
                     case 4:
-                        cubes[i][j].position.x = i*arcLength(j, jLen, Math.cos(radian));
-                        cubes[i][j].position.y = i*arcLength(j, jLen, Math.sin(radian));
-                        cubes[i][j].position.z = ((i+j)*iLen - iLen*iLen/2);
+                        cubes[i][j].position.x = Math.cos(Math.log(arcLength(i+1, iLen, degree)))*i*j;
+                        cubes[i][j].position.y = Math.sin(Math.log(arcLength(i+1, iLen, degree)))*i*j;
+                        cubes[i][j].position.z = (i*iLen - iLen*iLen/2);
+                        break;
+
+                    case 5:
+                        cubes[i][j].position.x = Math.cos(Math.log(arcLength(i+1, iLen, degree)))+(iLen*i+j)*positionScale*damp;
+                        cubes[i][j].position.y = Math.sin(Math.log(arcLength(i+1, iLen, degree)))+(iLen*i+j)*positionScale*damp;
+                        cubes[i][j].position.z = (i*iLen - iLen*iLen/2);
                         break;
 
                 }
@@ -136,12 +143,14 @@ var render = function (cycles) {
                         break;
 
                     case 3:
-                        cubes[i][j].rotation.y += Math.sin(cycles/18000*smoothScale)/(maxCycle-counter) + .001;
-                        cubes[i][j].rotation.x -= Math.cos(cycles/18000*smoothScale)/(maxCycle-counter) + .001;
+                        cubes[i][j].rotation.y += Math.sin(cycles/18000*smoothScale)/(maxCycle+10-counter) + .001;
+                        cubes[i][j].rotation.x -= Math.cos(cycles/18000*smoothScale)/(maxCycle+10-counter) + .001;
                         break;
 
                     case 4:
                         incrementScene = true;
+                        cubes[i][j].rotation.y = 0;
+                        cubes[i][j].rotation.x = 0;
                         break;
                         //camera.lookAt(cubes[7][7].position);
                         //camera.position.z += 100;
@@ -164,20 +173,26 @@ var render = function (cycles) {
         }
 
 
-        if (lastScale.length>100)
+        if (lastScale.length>10)
             lastScale.shift();
 
         if (incrementScene) {
-            //debugger;
+
+            // reset sceneStyle, increment sceneSelector
             sceneStyle = 0;
             sceneSelector++;
-            sceneSelector = sceneSelector % 5;
-            triggerFlag = transitionTrigger = false;
+            sceneSelector = sceneSelector % 6;
+
+            // update camera settings on new scene
+            camera.position.copy(cubes[8][8].position);
+            camera.position.z = cubes[8][8].position.z+500;
 
         } else if (newData) {
-
+            // reset transition trigger on newData
             triggerFlag = false;
+
             lastScale.push(tempScale);
+
             lastTriggerDetector += 20;
             triggerDetector += 20;
             if ( lastTriggerDetector &&
