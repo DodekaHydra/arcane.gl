@@ -27,7 +27,7 @@ var render = function (cycles) {
             (triggerFlag && transitionCounter > 5 && transitionCounter < 15 ) ) {
 
             sceneStyle++;
-            sceneStyle = sceneStyle%5;
+            sceneStyle = sceneStyle % 5;
             transitionCounter = 0;
         }
 
@@ -62,7 +62,7 @@ var render = function (cycles) {
                  ** @tempScale  :  on newData, render a point between current+previous audio frames
                  **                otherwise, render current audio frame
                  ** render() will undetectably be 1 visual frame behind the current audio */
-                var frameTween = (array[k] + boost) / 30;
+                var frameTween = (array[k] + boost) / (iLen+jLen);
                 tempScale[i][j] = (newData && lastFrameTween) ? (lastFrameTween+frameTween)/2 : frameTween;
 
                 if (newData)
@@ -85,7 +85,7 @@ var render = function (cycles) {
                 var positionScale = (!lastPositionScale || lastPositionScale<(timeScale+10)/(maxCycle/5.0)) ? (timeScale+10)/(maxCycle/5.0) : timeScale;
                 lastPositionScale = positionScale;
 
-                switch (sceneSelector%5){
+                switch (sceneSelector){
 
                     case 0: // expanding cluster
                         cubes[i][j].position.x = (iLen-i+positionScale)*Math.cos(radian);
@@ -103,21 +103,21 @@ var render = function (cycles) {
                         break;
 
                     case 3: // wavy grid
-                        cubes[i][j].position.x = (15*i + j)*2 - iLen*iLen/2 + damp;
-                        cubes[i][j].position.y = (15*j + i)*2 - jLen*jLen/2 + damp;
+                        cubes[i][j].position.x = (iLen*i + j)*2 - iLen*iLen/2 + damp;
+                        cubes[i][j].position.y = (iLen*j + i)*2 - jLen*jLen/2 + damp;
                         // TODO: FIX
-                        cubes[i][j].position.z = 30.*tempScale[i][j]*((Math.cos(cycles/80000)*Math.sin(cycles/75000)));
+                        cubes[i][j].position.z = (iLen+jLen)*tempScale[i][j]*((i+ j/(jLen/2))+(Math.cos(cycles/80000)*Math.sin(cycles/75000)));
                         break;
 
                     case 4:
-                        cubes[i][j].position.x = Math.cos(radian);
-                        cubes[i][j].position.y = Math.sin(radian);
-                        cubes[i][j].position.z = ((i+j)*15 - 15*7.5);
+                        cubes[i][j].position.x = i*arcLength(j, jLen, Math.cos(radian));
+                        cubes[i][j].position.y = i*arcLength(j, jLen, Math.sin(radian));
+                        cubes[i][j].position.z = ((i+j)*iLen - iLen*iLen/2);
                         break;
 
                 }
 
-                switch (sceneStyle % 5) {
+                switch (sceneStyle) {
                     case 0:
                         cubes[i][j].rotation.z = 3.*degree+Math.PI/2.;
                         cubes[i][j].position.z = sceneSelector+2 % 5 || sceneSelector+1 % 5 ? (-i)+timeScale+damp : cubes[i][j].position.z;
@@ -171,6 +171,7 @@ var render = function (cycles) {
             //debugger;
             sceneStyle = 0;
             sceneSelector++;
+            sceneSelector = sceneSelector % 5;
             triggerFlag = transitionTrigger = false;
 
         } else if (newData) {
