@@ -4,6 +4,8 @@ arcane.gl
 
 ###TO RUN:
 
++ [LIVE DEPLOY](http://arcanegl.jit.su) **NOTE: This is an early release using experimental technologies; this only works in Chrome**
+
 + [Acquire Python](http://www.python.org/download/) [2.x or 3.x is fine]
 
 + From Terminal/CMD, Run:
@@ -22,7 +24,7 @@ arcane.gl
 
 Select a song from the dropdown list. 
 
-        Mandala and Surge are most reactive, Gemini is a minimalistic edge case, Pockets is a bass-heavy edge case.
+        Paradise Circus is most reactve; Mandala and Surge are full spectrum; Gemini is a minimalistic edge case.
 
 Volume is controlled by a slider. Clear button doesn't work properly.
 
